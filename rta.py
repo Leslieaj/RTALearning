@@ -54,7 +54,7 @@ class RTA:
         print "State (name, init, accept) :"
         for s in self.states:
             print s.name, s.init, s.accept
-        print "transitions (id, source_state, label, target_state, normalform guard): "
+        print "transitions (id, source_state, label, target_state, constraints, normalform guard): "
         for t in self.trans:
             print t.id, t.source, t.label, t.target, t.show_constraints()
             t.nfc.show()
@@ -75,7 +75,6 @@ def buildRTA(jsonfile):
     trans_set = data["tran"]
     initstate = data["init"].encode("utf-8")
     accept_list = [s.encode("utf-8") for s in data["accept"]]
-    #observable = [label.encode("utf-8") for label in data["observable"]]
     S = [State(state) for state in states_list]
     for s in S:
         if s.name == initstate:
@@ -98,7 +97,6 @@ def buildRTA(jsonfile):
         rta_tran = RTATran(tran_id, source, target, label, constraints_list, nfc)
         trans += [rta_tran]
     return RTA(name, sigma, S, trans, initstate, accept_list)
-    #return RTA(name, sigma, S, trans, initstate, accept_list), observable
 
 def main():
     print("---------------------a.json----------------")
