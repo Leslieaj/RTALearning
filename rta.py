@@ -19,12 +19,23 @@ class RTATran:
     target = ""
     label = ""
     nfc = None
-    def __init__(self, id, source="", target="", label="", nfc=None):
+    def __init__(self, id, source="", target="", label="", constraints = None, nfc=None):
         self.id = id
         self.source = source
         self.target = target
         self.label = label
+        self.constraints = constraints or []
         self.nfc = nfc
+    
+    def show_constraints(self):
+        length = len(self.constraints)
+        if length ==0:
+            return "[0,+)"
+        else:
+            temp = self.constraints[0].guard
+            for i in range(1, length):
+                temp = temp + 'U' + self.constraints[i].guard
+            return temp
 
 class RTA:
     def __init__(self, name="", sigma= None, states=None, trans=None, initstate=None, accept=None):
@@ -45,7 +56,7 @@ class RTA:
             print s.name, s.init, s.accept
         print "transitions (id, source_state, label, target_state, normalform guard): "
         for t in self.trans:
-            print t.id, t.source, t.label, t.target
+            print t.id, t.source, t.label, t.target, t.show_constraints()
             t.nfc.show()
             print
         print "init state: "
@@ -84,7 +95,7 @@ def buildRTA(jsonfile):
             constraints_list.append(new_constraint)
         target = trans_set[tran][3].encode("utf-8")
         nfc = union_intervals_to_nform(constraints_list)
-        rta_tran = RTATran(tran_id, source, target, label, nfc)
+        rta_tran = RTATran(tran_id, source, target, label, constraints_list, nfc)
         trans += [rta_tran]
     return RTA(name, sigma, S, trans, initstate, accept_list)
     #return RTA(name, sigma, S, trans, initstate, accept_list), observable
