@@ -98,10 +98,33 @@ def buildRTA(jsonfile):
         trans += [rta_tran]
     return RTA(name, sigma, S, trans, initstate, accept_list)
 
+def buildAssistantRTA(rta):
+    """
+        build an assistant RTA which has the partitions at every node.
+        The acceptance language is equal to teacher.
+    """
+    location_number = len(rta.states)
+    new_state = State(str(location_number+1), False, False)
+    flag = False
+    #for tran in rta.trans:
+        
+
 def main():
     print("---------------------a.json----------------")
     A = buildRTA("a.json")
     A.show()
+    
+    a = [0,1,2,3]
+    b = [i for i in a]
+    b.append(4)
+    print a
+    print b
+    
+    c1 = Constraint("[0,+)")
+    c2 = complement_intervals([c1])
+    print len(c2)
+    for c in c2:
+        print c.show()
 
 if __name__=='__main__':
 	main()
