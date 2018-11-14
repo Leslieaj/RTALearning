@@ -104,22 +104,49 @@ def buildAssistantRTA(rta):
         The acceptance language is equal to teacher.
     """
     location_number = len(rta.states)
+    tran_number = len(rta.trans)
     new_state = State(str(location_number+1), False, False)
     flag = False
-    #for tran in rta.trans:
-        
+    new_trans = []
+    for s in rta.states:
+        s_dict = {}
+        for key in rta.sigma:
+            s_dict[key] = []
+        for tran in rta.trans:
+            if tran.source == s.name:
+                for label in rta.sigma:
+                    if tran.label == label:
+                        for constraint in tran.constraints:
+                            s_dict[label].append(constraint)
+        for key in s_dict:
+            cuintervals = []
+            if len(s_dict[key]) > 0:
+                cuintervals = complement_intervals(s_dict[key])
+            else:
+                cuintervals = [Constraint("[0,+)")]
+            if len(cuintervals) > 0:
+                nfc = union_intervals_to_nform(cuintervals)
+                temp_tran = RTATran(tran_number, s.name, new_state.name, key, cuintervals, nfc)
+                tran_number = tran_number+1
+                new_trans.append(temp_tran)
+    assist_name = "Assist_"+rta.name
+    assist_states = [state for state in rta.states]
+    assist_trans = [tran for tran in rta.trans]
+    assist_init = rta.initstate_name
+    assist_accepts = [sn for sn in rta.accept_names]
+    if len(new_trans) > 0:
+        assist_states.append(new_state)
+        for tran in new_trans:
+            assist_trans.append(tran)
+    return RTA(assist_name, rta.sigma, assist_states, assist_trans, assist_init, assist_accepts)
 
 def main():
     print("---------------------a.json----------------")
     A = buildRTA("a.json")
+    AA = buildAssistantRTA(A)
     A.show()
-    
-    a = [0,1,2,3]
-    b = [i for i in a]
-    b.append(4)
-    print a
-    print b
-    
+    print("-----------------------------------------------")
+    AA.show()
     c1 = Constraint("[0,+)")
     c2 = complement_intervals([c1])
     print len(c2)
