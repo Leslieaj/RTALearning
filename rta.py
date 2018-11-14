@@ -193,10 +193,29 @@ class Timedword():
     def __init__(self, action = "", time = 0):
         self.action = action
         self.time = time
+    def __eq__(self, tw):
+        if self.action == "" and tw.action == "":
+            return True
+        if self.action != tw.action:
+            return False
+        else:
+            if self.time == tw.time:
+                return True
+            else:
+                return False
     def getTW(self):
         return [self.action, self.time]
     def show(self):
         return "("+self.action+","+str(self.time)+")"
+
+def tws_equal(tws1,tws2):
+    if len(tws1) != len(tws2):
+        return False
+    else:
+        for i in range(0, len(tws1)):
+            if tws1[i] != tws2[i]:
+                return False
+        return True
 
 def main():
     A = buildRTA("a.json")
@@ -206,7 +225,7 @@ def main():
     print("--------------------Assistant---------------------------")
     AA.show()
     print("--------------------time words------------------------")
-    tw1 = Timedword("a", 3)
+    tw1 = Timedword("a", 5)
     tw2 = Timedword("b", 2.1)
     print tw1.show()
     print tw2.show()
@@ -231,6 +250,11 @@ def main():
     print AA.is_accept(tws3)
     print AA.is_accept(tws4)
     print AA.is_accept(tws5)
+    
+    print tw1 == tw4
+    print tw1 == tw3
+    tws6 = [tw4,tw3,tw5]
+    print tws_equal(tws3, tws6)
 
 if __name__=='__main__':
 	main()
