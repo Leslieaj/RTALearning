@@ -58,7 +58,7 @@ class Table():
         else:
             return True, new_S, new_R, move        
 
-def make_closed(table, sigma):
+def make_closed(table, sigma, rta):
     flag, new_S, new_R, move = table.is_closed()
     new_E = table.E
     closed_table = Table(new_S, new_R, new_E)
@@ -69,11 +69,24 @@ def make_closed(table, sigma):
             temp_tws = s_tws+[Timedword(action,0)]
             if temp_tws not in tabel_tws:
                 temp_element = Element(temp_tws,[])
+                fill(temp_element, closed_table.E, rta)
                 closed_table.R.append(temp_element)
                 tabel_tws = [s.tws for s in closed_table.S] + [r.tws for r in closed_table.R]
     return closed_table
 
+def fill(element, E, rta):
+    if len(element.value) == 0:
+        f = rta.is_accept(element.tws)
+        element.value.append(f)
+    print len(element.value)-1, len(E)
+    for i in range(len(element.value)-1, len(E)):
+        temp_tws = element.tws + E[i]
+        f = rta.is_accept(temp_tws)
+        element.value.append(f)
+        
 def main():
+    A = buildRTA("a.json")
+    AA = buildAssistantRTA(A)
     sigma = ["a", "b"]
     tw1 = Timedword("a", 3)
     tw2 = Timedword("b", 2.1)
@@ -94,8 +107,10 @@ def main():
     e5 = Element(tws5,[1,1,0,1])
     S = [e0,e1]
     R = [e2,e3,e4,e5]
-    T = Table(S,R,[])
-    closed_T = make_closed(T, sigma)
+    E = [tws2, tws4]
+    T = Table(S,R,E)
+
+    closed_T = make_closed(T, sigma, AA)
     print("new_S:"+str(len(closed_T.S)))
     for s in closed_T.S:
         print s.row()
