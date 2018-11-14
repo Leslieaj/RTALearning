@@ -29,7 +29,7 @@ class RTATran:
     
     def is_pass(self, tw):
         """
-            determine whether the timeword tw can pass the tran
+            determine whether the timeword tw can pass the transition.
         """
         if tw.action == self.label:
             for constraint in self.constraints:
@@ -58,6 +58,31 @@ class RTA:
         self.initstate_name = initstate
         self.accept_names = accept or []
     
+    def is_accept(self, tws):
+        """
+            determine whether RTA accepts a timed words or not.
+        """
+        if len(tws) == 0:
+            if self.initstate_name in self.accept_names:
+                return 1
+            else:
+                return 0
+        else:
+            current_statename = self.initstate_name
+            for tw in tws:
+                flag = False
+                for tran in self.trans:
+                    if tran.source == current_statename and tran.is_pass(tw):
+                        current_statename = tran.target
+                        flag = True
+                        break
+                if flag == False:
+                    return -1
+            if current_statename in self.accept_names:
+                return 1
+            else:
+                return 0
+
     def show(self):
         print "RTA name: "
         print self.name
@@ -159,6 +184,9 @@ def buildAssistantRTA(rta):
     return RTA(assist_name, rta.sigma, assist_states, assist_trans, assist_init, assist_accepts)
 
 class Timedword():
+    """
+        define the timed word. a timed-words is a list of timed words
+    """
     def __init__(self, action = "", time = 0):
         self.action = action
         self.time = time
@@ -184,6 +212,22 @@ def main():
         print t.id, t.source, t.label, t.target, t.show_constraints()
         #t.nfc.show()
         print t.is_pass(tw2)
+    print("----------------------is_accept-----------------------")
+    tw3 = Timedword("b", 3)
+    tw4 = Timedword("a", 5)
+    tw5 = Timedword("b", 7)
+    tws0 = []
+    tws1 = [tw1,tw2,tw3,tw4]
+    tws2 = [tw4]
+    tws3 = [tw4,tw3,tw5]
+    tws4 = [tw3,tw4]
+    tws5 = [tw4,tw3,tw4,tw5]
+    print AA.is_accept(tws0)
+    print AA.is_accept(tws1)
+    print AA.is_accept(tws2)
+    print AA.is_accept(tws3)
+    print AA.is_accept(tws4)
+    print AA.is_accept(tws5)
 
 if __name__=='__main__':
 	main()
