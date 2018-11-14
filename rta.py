@@ -150,6 +150,12 @@ def buildAssistantRTA(rta):
         assist_states.append(new_state)
         for tran in new_trans:
             assist_trans.append(tran)
+        for label in rta.sigma:
+            constraints = [Constraint("[0,+)")]
+            nfc = union_intervals_to_nform(constraints)
+            temp_tran = RTATran(tran_number, new_state.name, new_state.name, label, constraints, nfc)
+            tran_number = tran_number+1
+            assist_trans.append(temp_tran)
     return RTA(assist_name, rta.sigma, assist_states, assist_trans, assist_init, assist_accepts)
 
 class Timedword():
