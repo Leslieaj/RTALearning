@@ -175,8 +175,8 @@ class Constraint:
             return False
     
     def isininterval(self, num):
-        if self.max_value == '+':
-            return True
+        #if self.max_value == '+':
+            #return True
         if num < self.get_min():
             return False
         elif num == self.get_min():
@@ -365,5 +365,8 @@ def main():
     print c2.isPoint()
     print c4.isPoint()
     print c5.isPoint()
+    print("------------------------------")
+    c6 = Constraint("(3,+)")
+    print c6.isininterval(3)
 if __name__=='__main__':
 	main()

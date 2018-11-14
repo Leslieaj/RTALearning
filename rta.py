@@ -140,18 +140,27 @@ def buildAssistantRTA(rta):
             assist_trans.append(tran)
     return RTA(assist_name, rta.sigma, assist_states, assist_trans, assist_init, assist_accepts)
 
+class Timedword():
+    def __init__(self, action = "", time = 0):
+        self.action = action
+        self.time = time
+    def getTW(self):
+        return [self.action, self.time]
+    def show(self):
+        return "("+self.action+","+str(self.time)+")"
+
 def main():
-    print("---------------------a.json----------------")
     A = buildRTA("a.json")
     AA = buildAssistantRTA(A)
+    print("---------------------a.json----------------")
     A.show()
-    print("-----------------------------------------------")
+    print("--------------------Assistant---------------------------")
     AA.show()
-    c1 = Constraint("[0,+)")
-    c2 = complement_intervals([c1])
-    print len(c2)
-    for c in c2:
-        print c.show()
+    print("--------------------time words------------------------")
+    tw1 = Timedword("a", 3)
+    tw2 = Timedword("b", 10.1)
+    print tw1.show()
+    print tw2.show()
 
 if __name__=='__main__':
 	main()
