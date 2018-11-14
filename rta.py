@@ -27,6 +27,18 @@ class RTATran:
         self.constraints = constraints or []
         self.nfc = nfc
     
+    def is_pass(self, tw):
+        """
+            determine whether the timeword tw can pass the tran
+        """
+        if tw.action == self.label:
+            for constraint in self.constraints:
+                if constraint.isininterval(tw.time):
+                    return True
+        else:
+            return False
+        return False
+
     def show_constraints(self):
         length = len(self.constraints)
         if length ==0:
@@ -158,9 +170,14 @@ def main():
     AA.show()
     print("--------------------time words------------------------")
     tw1 = Timedword("a", 3)
-    tw2 = Timedword("b", 10.1)
+    tw2 = Timedword("b", 2.1)
     print tw1.show()
     print tw2.show()
+    print("-----------------------is_pass------------------------")
+    for t in AA.trans:
+        print t.id, t.source, t.label, t.target, t.show_constraints()
+        #t.nfc.show()
+        print t.is_pass(tw2)
 
 if __name__=='__main__':
 	main()
