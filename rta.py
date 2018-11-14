@@ -31,6 +31,9 @@ class RTATran:
         """
             determine whether the timeword tw can pass the transition.
         """
+        # - means empty
+        #if tw.action == "-":
+            #return True
         if tw.action == self.label:
             for constraint in self.constraints:
                 if constraint.isininterval(tw.time):
