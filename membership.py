@@ -6,6 +6,12 @@ class Element():
     def __init__(self, tws=[], value=[]):
         self.tws = tws or []
         self.value = value or []
+    
+    def __eq__(self, element):
+        if self.tws == element.tws and self.value == element.value:
+            return True
+        else:
+            return False
 
     def get_tws_e(self, e):
         tws_e = [tw for tw in self.tws]
@@ -58,6 +64,52 @@ class Table():
         else:
             return True, new_S, new_R, move        
 
+    def is_consistent(self):
+        """
+            deterine whether the table is consistent
+            (if tws1,tws2 \in S U R, if a \in sigma* tws1+a, tws2+a \in S U R and row(tws1) = row(tws2), 
+            then row(tws1+a) = row(tws2+a))
+        """
+        flag = True
+        new_a = None
+        new_e_index = None
+        table_element = [s for s in self.S] + [r for r in self.R]
+        for i in range(0, len(table_element)-1):
+            for j in range(i+1, len(table_element)):
+                if table_element[i].row() == table_element[j].row():
+                    temp_elements1 = []
+                    temp_elements2 = []
+                    for element in table_element:
+                        if is_prefix(element.tws, table_element[i].tws):
+                            new_element1 = Element(delete_prefix(element.tws, table_element[i].tws), [v for v in element.value])
+                            temp_elements1.append(new_element1)
+                        if is_prefix(element.tws, table_element[j].tws):
+                            new_element2 = Element(delete_prefix(element.tws, table_element[j].tws), [v for v in element.value])
+                            temp_elements2.append(new_element2)
+                    for e1 in temp_elements1:
+                        for e2 in temp_elements2:
+                            if len(e1.tws) == 1 and len(e2.tws) == 1 and e1.tws == e2.tws:
+                                flag = False
+                                new_a = e1.tws
+                                for i in range(0, len(e1.value)):
+                                    if e1.value[i] != e2.value[i]:
+                                        new_e_index = i
+                                        print [tw.show() for tw in table_element[i].tws]
+                                        print [tw.show() for tw in table_element[j].tws]
+                                        return flag, new_a, new_e_index
+        return flag, new_a, new_e_index
+    
+    def show(self):
+        print("new_S:"+str(len(self.S)))
+        for s in self.S:
+            print [tw.show() for tw in s.tws], s.row()
+        print("new_R:"+str(len(self.R)))
+        for r in self.R:
+            print [tw.show() for tw in r.tws], r.row()
+        print("new_E:"+str(len(self.E)))
+        for e in self.E:
+            print [tw.show() for tw in e]
+
 def make_closed(table, sigma, rta):
     flag, new_S, new_R, move = table.is_closed()
     new_E = table.E
@@ -73,6 +125,23 @@ def make_closed(table, sigma, rta):
                 closed_table.R.append(temp_element)
                 table_tws = [s.tws for s in closed_table.S] + [r.tws for r in closed_table.R]
     return closed_table
+
+def make_consistent(table, sigma, rta):
+    flag, new_a, new_e_index = table.is_consistent()
+    new_E = [tws for tws in table.E]
+    new_e = [tw for tw in new_a]
+    if new_e_index > 0:
+        e = table.E[new_e_index-1]
+        new_e.expend(e)
+    new_E.append(new_e)
+    new_S = [s for s in table.S]
+    new_R = [r for r in table.R]
+    for i in range(0, len(new_S)):
+        fill(new_S[i], new_E, rta)
+    for j in range(0, len(new_R)):
+        fill(new_R[j], new_E, rta)
+    consistent_table = Table(new_S, new_R, new_E)
+    return consistent_table
 
 def add_ctx(table, ctx, rta):
     """
@@ -108,6 +177,31 @@ def prefixes(tws):
         prefixes.append(temp_tws)
     return prefixes
 
+def is_prefix(tws, pref):
+    """
+        determine whether the pref is a prefix of the timedwords tws
+    """
+    if len(pref) == 0:
+        return True
+    else:
+        if len(tws) < len(pref):
+            return False
+        else:
+            for i in range(0, len(pref)):
+                if tws[i] != pref[i] :
+                    return False
+            return True
+
+def delete_prefix(tws, pref):
+    """
+        delete a prefix of timedwords tws, and return the new tws
+    """
+    if len(pref) == 0:
+        return [tw for tw in tws]
+    else:
+        new_tws = tws[len(pref):]
+        return new_tws
+
 def fill(element, E, rta):
     if len(element.value) == 0:
         f = rta.is_accept(element.tws)
@@ -136,6 +230,41 @@ def test_close(table, sigma, rta):
 
 def test_add_ctx(table, ctx):
     return 0
+
+def test_is_prefix():
+    tw1 = Timedword("a", 0)
+    tw2 = Timedword("b", 0)
+    tw3 = Timedword("a", 5)
+    tw4 = Timedword("b", 4)
+    tw5 = Timedword("a", 7)
+    tw6 = Timedword("b", 2)
+    tws0 = [] # empty
+    tws1 = [tw1] # (a,0)
+    tws2 = [tw2] # (b,0)
+    tws3 = [tw3] # (a,5)
+    tws4 = [tw3,tw1] # (a,5) (a,0)
+    tws5 = [tw3,tw2] # (a,5) (b,0)
+    tws6 = [tw5] # (a,7)
+    tws7 = [tw4] # (b,4)
+    tws8 = [tw4,tw3] # (b,4) (a,5)
+    tws9 = [tw1,tw1] # (a,0) (a,0)
+    tws10 = [tw1,tw2] # (a,0) (b,0)
+    tws11 = [tw6,tw3] # (b,2) (a,5)
+    tws12 = [tws6] #(b,2)
+    tws13 = [tw3,tw1,tw2]
+    print is_prefix(tws4, tws3)
+    print is_prefix(tws3, tws4)
+    print is_prefix(tws4, tws1)
+    print is_prefix(tws3, tws0)
+    print is_prefix(tws0, tws0)
+    print is_prefix(tws0, tws10)
+    print is_prefix(tws11, tws10)
+    print is_prefix(tws13, tws4)
+    
+    print [tw.show() for tw in delete_prefix(tws4, tws3)]
+    print [tw.show() for tw in delete_prefix(tws3, tws0)]
+    print [tw.show() for tw in delete_prefix(tws0, tws0)]
+    print [tw.show() for tw in delete_prefix(tws13, tws4)]
 
 def test_prefixes():
     tw1 = Timedword("a", 0)
@@ -177,7 +306,7 @@ def main():
     tws9 = [tw1,tw1] # (a,0) (a,0)
     tws10 = [tw1,tw2] # (a,0) (b,0)
     tws11 = [tw6,tw3] # (b,2) (a,5)
-    tws12 = [tws6] #(b,2)
+    tws12 = [tw6] #(b,2)
 
     e0 = Element(tws0,[0])
     e1 = Element(tws1,[0])
@@ -191,30 +320,26 @@ def main():
     T = Table(S,R,E)
     
     T3 = make_closed(T, sigma, AA)
+    T3.show()
+    
     ctx2 = tws6
     T4 = add_ctx(T3, ctx2, AA)
-    print("new_S:"+str(len(T4.S)))
-    for s in T4.S:
-        print [tw.show() for tw in s.tws], s.row()
-    print("new_R:"+str(len(T4.R)))
-    for r in T4.R:
-        print [tw.show() for tw in r.tws], r.row()
-    print len(T3.S), len(T4.S)
-    print len(T3.R), len(T4.R)
-    print len(T3.E), len(T4.E)
-    print("-----------------------------------------------------")
+    T4.show()
+    print("----------------------T5--------------------------")
     ctx3 = tws8
     T5 = add_ctx(T4, ctx3, AA)
-    print("new_S:"+str(len(T5.S)))
-    for s in T5.S:
-        print [tw.show() for tw in s.tws], s.row()
-    print("new_R:"+str(len(T5.R)))
-    for r in T5.R:
-        print [tw.show() for tw in r.tws], r.row()
-    print len(T4.S), len(T5.S)
-    print len(T4.R), len(T5.R)
-    print len(T4.E), len(T5.E)
-
+    T5.show()
+    print("----------------------T6--------------------------")
+    T6 = make_consistent(T5, sigma, AA)
+    T6.show()  
+    print("----------------------T7--------------------------")
+    T7 = make_closed(T6, sigma, AA)
+    T7.show()
+    print("----------------------T8--------------------------")
+    ctx4 = tws11
+    T8 = add_ctx(T7, ctx4, AA)
+    T8.show()
+    #test_is_prefix()
     #test_close(T, sigma, AA)
     #test_prefixes()
 
