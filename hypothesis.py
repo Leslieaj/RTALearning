@@ -85,6 +85,43 @@ def buildEvidenceAutomaton(table, sigma):
     ea = EvidenceAutomaton(new_sigma, states, trans, initstate_name, accept_names)
     return ea
 
+def buildhypothesis(ea, n):
+    name = "H_" + str(n)
+    sigma = [action for action in ea.sigma]
+    states = [state for state in ea.states]
+    initstate_name = ea.initstate_name
+    accept_names = [name for name in ea.accept_names]
+    trans = []
+    for s in states:
+        s_dict = {}
+        for key in sigma:
+            s_dict[key] = [0]
+        for tran in ea.trans:
+            if tran.source == s.name:
+                for label in sigma:
+                    if tran.label[0].action == label:
+                        for tw in tran.label:
+                            if tw.time != 0:
+                                s_dict[label].append(tw.time)
+        for tran in ea.trans:
+            if tran.source == s.name:
+                timepoints = [time for time in s_dict[tran.label[0].action]]
+                timepoints.sort()
+                constraints = []
+                for tw in tran.label:
+                    index = timepoints.index(tw.time)
+                    if index + 1 < len(timepoints):
+                        temp_constraint = Constraint("["+str(tw.time)+","+str(timepoints[index+1])+")")
+                        constraints.append(temp_constraint)
+                    else:
+                        temp_constraint = Constraint("["+str(tw.time)+"," + "+" + ")")
+                        constraints.append(temp_constraint)
+                nfc = union_intervals_to_nform(constraints)
+                temp_tran = RTATran(tran.id, tran.source, tran.target, tran.label[0].action, constraints, nfc)
+                trans.append(temp_tran)
+    rta = RTA(name, sigma, states, trans, initstate_name, accept_names)
+    return rta
+                
 def main():
     A = buildRTA("a.json")
     AA = buildAssistantRTA(A)
@@ -144,7 +181,9 @@ def main():
     print("----------------------EA--------------------------")
     ea = buildEvidenceAutomaton(T8, sigma)
     ea.show()
-
+    print("----------------------H---------------------------")
+    hypothesis = buildhypothesis(ea, 5)
+    hypothesis.show()
     return 0
 
 if __name__=='__main__':

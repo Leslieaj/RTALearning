@@ -100,8 +100,6 @@ class Table():
                                 for i in range(0, len(e1.value)):
                                     if e1.value[i] != e2.value[i]:
                                         new_e_index = i
-                                        print [tw.show() for tw in table_element[i].tws]
-                                        print [tw.show() for tw in table_element[j].tws]
                                         return flag, new_a, new_e_index
         return flag, new_a, new_e_index
     
