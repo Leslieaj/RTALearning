@@ -24,6 +24,12 @@ class Element():
 
     def row(self):
         return self.value
+    
+    def whichstate(self):
+        state_name = ""
+        for v in self.value:
+            state_name = state_name+str(v)
+        return state_name
 
 class Table():
     """
@@ -212,6 +218,70 @@ def fill(element, E, rta):
         f = rta.is_accept(temp_tws)
         element.value.append(f)
 
+class EvidenceAutomaton():
+    def __init__(self, sigma= None, states=None, trans=None, initstate=None, accept=None):
+        #self.name = name
+        self.sigma = sigma
+        self.states = states or []
+        self.trans = trans or []
+        self.initstate_name = initstate or []
+        self.accept_names = accept or []
+
+class EATran():
+    def __init__(self, id, source = "", label = None, target = ""):
+        self.id = id
+        self.source = source
+        self.label = label or []
+        self.target = target
+
+def buildEvidenceAutomaton(table, sigma):
+    new_sigma = [action for action in sigma]
+    states = []
+    initstate_name = ""
+    accept_names = []
+    for s in table.S:
+        name = s.whichstate()
+        init = False
+        accept = False
+        if s.tws == []:
+            init = True
+            initstate_name = name
+        if s.value[0] == 1:
+            accept = True
+            accept_names.append(name)
+        temp_state = State(name, init, accept)
+        states.append(temp_state)
+    trans_number = 0
+    trans = []
+    table_element = [s for s in table.S] + [r for r in table.R]
+    for r in table.R:
+        timedwords = [tw for tw in r.tws]
+        w = timedwords[:-1]
+        a = timedwords[len(timedwords)-1]
+        source = ""
+        target = ""
+        label = [a]
+        for element in table_element:
+            if w == element.tws:
+                source = element.whichstate()
+            if timedwords == element.tws:
+                target = element.whichstate()
+        need_newtran = True
+        for tran in trans:
+            if source == tran.source and target == tran.target:
+                if a.action == tran.label[0].action:
+                    if a in tran.label:
+                        need_newtran = False
+                    else:
+                        tran.label.append(a)
+                        need_newtran = False
+        if need_newtran == True:
+            temp_tran = EATran(trans_number, source, label, target)
+            trans.append(temp_tran)
+            trans_number = trans_number + 1
+    ea = EvidenceAutomaton(new_sigma, states, trans, initstate_name, accept_names)
+    return ea
+            
 #----------------------------------------------------------------------------------------#
 #---------------------------------------TEST---------------------------------------------#
 #----------------------------------------------------------------------------------------#
@@ -342,7 +412,6 @@ def main():
     #test_is_prefix()
     #test_close(T, sigma, AA)
     #test_prefixes()
-
     return 0
 
 if __name__=='__main__':
