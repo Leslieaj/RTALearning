@@ -86,7 +86,7 @@ def buildEvidenceAutomaton(table, sigma):
     return ea
 
 def buildhypothesis(ea, n):
-    name = "H_" + str(n)
+    new_name = "H_" + str(n)
     sigma = [action for action in ea.sigma]
     states = [state for state in ea.states]
     initstate_name = ea.initstate_name
@@ -119,7 +119,7 @@ def buildhypothesis(ea, n):
                 nfc = union_intervals_to_nform(constraints)
                 temp_tran = RTATran(tran.id, tran.source, tran.target, tran.label[0].action, constraints, nfc)
                 trans.append(temp_tran)
-    rta = RTA(name, sigma, states, trans, initstate_name, accept_names)
+    rta = RTA(new_name, sigma, states, trans, initstate_name, accept_names)
     return rta
                 
 def main():
@@ -150,20 +150,45 @@ def main():
     e0 = Element(tws0,[0])
     e1 = Element(tws1,[0])
     e2 = Element(tws2,[0])
-    e3 = Element(tws3,[1])
-    e4 = Element(tws4,[0,1,0,1])
-    e5 = Element(tws5,[1,1,0,1])
+    #e3 = Element(tws3,[1])
+    #e4 = Element(tws4,[0,1,0,1])
+    #e5 = Element(tws5,[1,1,0,1])
     S = [e0]
-    R = [e1,e2,e3]
+    R = [e1,e2]
     E = []
-    T = Table(S,R,E)
     
-    T3 = make_closed(T, sigma, AA)
+    print("----------------------T1--------------------------")
+    T1 = Table(S,R,E)
+    T1.show()
+    print("----------------------EA1-------------------------")
+    ea1 = buildEvidenceAutomaton(T1, sigma)
+    ea1.show()
+    print("----------------------H1--------------------------")
+    H1 = buildhypothesis(ea1, 1)
+    H1.show()
+    print("----------------------T2--------------------------")
+    ctx1 = tws3
+    T2 = add_ctx(T1, ctx1, AA)
+    T2.show()
+    print("----------------------T3--------------------------")
+    T3 = make_closed(T2, sigma, AA)
     T3.show()
-    
+    print("----------------------EA2-------------------------")
+    ea2 = buildEvidenceAutomaton(T3, sigma)
+    ea2.show()
+    print("----------------------H2--------------------------")
+    H2 = buildhypothesis(ea2, 2)
+    H2.show()
+    print("----------------------T4--------------------------")
     ctx2 = tws6
     T4 = add_ctx(T3, ctx2, AA)
     T4.show()
+    print("----------------------EA3-------------------------")
+    ea3 = buildEvidenceAutomaton(T4, sigma)
+    ea3.show()
+    print("----------------------H3--------------------------")
+    H3 = buildhypothesis(ea3, 3)
+    H3.show()
     print("----------------------T5--------------------------")
     ctx3 = tws8
     T5 = add_ctx(T4, ctx3, AA)
@@ -174,16 +199,22 @@ def main():
     print("----------------------T7--------------------------")
     T7 = make_closed(T6, sigma, AA)
     T7.show()
+    print("----------------------EA4-------------------------")
+    ea4 = buildEvidenceAutomaton(T7, sigma)
+    ea4.show()
+    print("----------------------H4--------------------------")
+    H4 = buildhypothesis(ea4, 4)
+    H4.show()
     print("----------------------T8--------------------------")
     ctx4 = tws11
     T8 = add_ctx(T7, ctx4, AA)
     T8.show()
-    print("----------------------EA--------------------------")
-    ea = buildEvidenceAutomaton(T8, sigma)
-    ea.show()
-    print("----------------------H---------------------------")
-    hypothesis = buildhypothesis(ea, 5)
-    hypothesis.show()
+    print("----------------------EA5--------------------------")
+    ea5 = buildEvidenceAutomaton(T8, sigma)
+    ea5.show()
+    print("----------------------H5---------------------------")
+    H5 = buildhypothesis(ea5, 5)
+    H5.show()
     return 0
 
 if __name__=='__main__':
