@@ -256,7 +256,6 @@ def rfa_product(rfa1, rfa2):
                 reach_states.append(new_state)
                 final_states.append(new_state)
     trans = []
-    #rstate = reach_states.pop(0)
     while len(reach_states) > 0:
         rstate = reach_states.pop(0)
         statename1, statename2 = rstate.name.split('_')
@@ -286,7 +285,6 @@ def rfa_product(rfa1, rfa2):
                                         if state not in final_states:
                                             reach_states.append(state)
                                             final_states.append(state)
-        #final_states.append(rstate)
     initstate_name = ""
     accept_names = []
     for state in final_states:
