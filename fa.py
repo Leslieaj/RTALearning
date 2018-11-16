@@ -240,6 +240,7 @@ def rfa_product(rfa1, rfa2):
     timed_alphabet = rfa1.timed_alphabet # has same timed alphabet
     reach_states = []
     temp_states = []
+    final_states = []
     for state1 in rfa1.states:
         for state2 in rfa2.states:
             new_state_name = state1.name + '_' + state2.name
@@ -253,8 +254,9 @@ def rfa_product(rfa1, rfa2):
             temp_states.append(new_state)
             if new_state_init == True:
                 reach_states.append(new_state)
+                final_states.append(new_state)
     trans = []
-    final_states = []
+    #rstate = reach_states.pop(0)
     while len(reach_states) > 0:
         rstate = reach_states.pop(0)
         statename1, statename2 = rstate.name.split('_')
@@ -281,9 +283,10 @@ def rfa_product(rfa1, rfa2):
                                 trans.append(new_tran)
                                 for state in temp_states:
                                     if state.name == new_target:
-                                        if state not in reach_states:
+                                        if state not in final_states:
                                             reach_states.append(state)
-        final_states.append(rstate)
+                                            final_states.append(state)
+        #final_states.append(rstate)
     initstate_name = ""
     accept_names = []
     for state in final_states:
