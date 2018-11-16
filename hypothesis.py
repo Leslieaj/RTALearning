@@ -41,8 +41,10 @@ def buildEvidenceAutomaton(table, sigma):
     states = []
     initstate_name = ""
     accept_names = []
-    for s in table.S:
-        name = s.whichstate()
+    value_name_dict = {}
+    for s,i in zip(table.S, range(1, len(table.S)+1)):
+        name = str(i)
+        value_name_dict[s.whichstate()] = name
         init = False
         accept = False
         if s.tws == []:
@@ -67,9 +69,9 @@ def buildEvidenceAutomaton(table, sigma):
         label = [a]
         for element in table_element:
             if w == element.tws:
-                source = element.whichstate()
+                source = value_name_dict[element.whichstate()]
             if timedwords == element.tws:
-                target = element.whichstate()
+                target = value_name_dict[element.whichstate()]
         need_newtran = True
         for tran in trans:
             if source == tran.source and target == tran.target:

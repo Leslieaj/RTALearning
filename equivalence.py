@@ -73,6 +73,9 @@ def main():
     print("---------------------comp of rAADFA-----------------")
     comp_rAADFA = rfa_complement(rAADFA)
     comp_rAADFA.show()
+    print("---------------------rcAA---------------------------")
+    rcAA = rfa_to_fa(comp_rAADFA)
+    rcAA.show()
     return 0
 
 if __name__=='__main__':
