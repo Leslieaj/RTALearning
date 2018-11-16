@@ -446,6 +446,49 @@ def nfa_to_dfa(rfa):
     d_rfa = RFA(name, timed_alphabet, states, trans, initstate_name, accept_names)
     return d_rfa
 
+#In this tool, we do not need the kleen star of normalform, and in normal form k==1 and len(X2) <=1.
+#So, we have a methods to transform a normalform to unintersection constraints
+#then we can transform a transformed FA to a RTA
+def nform_to_union_intervals(X):
+    constraints = [c for c in X.x1]
+    if len(X.x2) == 0:
+        return constraints
+    elif len(X.x2) == 1:
+        min_value = X.x2[0].min_value
+        max_value = "+"
+        temp_guard = ""
+        if X.x2[0].closed_min == True:
+            temp_guard = "["
+        else:
+            temp_guard = "("
+        temp_guard = temp_guard + min_value + "," + max_value + ")"
+        temp_constraint = Constraint(temp_guard)
+        constraints.append(temp_constraint)
+        return constraints
+    else:
+        return None
+
+def fa_to_rta(fa):
+    temp_name = copy.deepcopy(fa.name)
+    names = temp_name.split('_')
+    name = names[len(names)-1]
+    initstate_name = fa.initstate_name
+    accept_names = [name for name in fa.accept_names]
+    sigma = [term for term in fa.timed_alphabet]
+    states = [state for state in fa.states]
+    trans = []
+    for tran in fa.trans:
+        source = tran.source
+        target = tran.target
+        label = tran.timedlabel.label
+        temp_constraints = nform_to_union_intervals(tran.timedlabel.nfc)
+        constraints = unintersect_intervals(temp_constraints)
+        nfc = union_intervals_to_nform(constraints)
+        temp_tran = RTATran(tran.id, source, target, label, constraints, nfc)
+        trans.append(temp_tran)
+    rta = RTA(name, sigma, states, trans, initstate_name, accept_names)
+    return rta
+
 def main():
     print("---------------------a.json----------------")
     A,_ = buildRTA("a.json")
