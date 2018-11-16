@@ -1,5 +1,6 @@
 #define Evidence Automaton and build a hypothesis RTA
 
+#import pygraphviz as pyg
 from membership import *
 
 class EvidenceAutomaton():
@@ -121,7 +122,7 @@ def buildhypothesis(ea, n):
                 trans.append(temp_tran)
     rta = RTA(new_name, sigma, states, trans, initstate_name, accept_names)
     return rta
-                
+
 def main():
     A = buildRTA("a.json")
     AA = buildAssistantRTA(A)
@@ -215,6 +216,7 @@ def main():
     print("----------------------H5---------------------------")
     H5 = buildhypothesis(ea5, 5)
     H5.show()
+    
     return 0
 
 if __name__=='__main__':
