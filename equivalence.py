@@ -3,30 +3,50 @@
 from hypothesis import *
 from fa import *
 
+def findpath(rta, paths):
+    """
+        find paths one more step.
+    """
+    current_paths = [path for path in paths]
+    onemorestep_paths = []
+    for path in current_paths:
+        for tran in rta.trans:
+            if tran.source == path[len(path)-1]:
+                path.append(tran.target)
+                onemorestep_paths.append(path)
+    return onemorestep_paths
+
+def buildctx(rta, path, value):
+    """
+        The input path can reach a accept state.
+        We build a ctx depending on the path.
+    """
+    tws = []
+    for i in range(0, len(path)-1):
+        for tran in rta.trans:
+            if tran.source == path[i] and tran.target == path[i+1]:
+                action = tran.label
+                time = min_constraints_number(tran.constraints)
+                tw = Timedword(action, time)
+                tws.append(tw)
+    ctx = Element(tws,[value])
+    return ctx
+                
 def findctx(rta, value):
     ctx = Element([],[value])
     if len(rta.states) == 0 or len(rta.accept_names) == 0:
         return ctx
     else:
-        temp_states = [states for states in rta.states]
-        init_state = None
-        for s in temp_states:
-            if s.init == True:
-                init_state = copy.deepcopy(s)
-                temp_states.remove(s)
-                break
-        tws = []
-        reach_statenames = [init_state.name]
-        current_statename = init_state.name
-        for tran in rta.trans:
-            if tran.source == current_statename:
-                time = min_constraints_number(tran.constraints)
-                tw = Timedword(tran.label, time)
-                tws.append(tw)
-                if tran.target in rta.accept_names:
-                    ctx.tws = tws
+        initpath = [rta.initstate_name]
+        current_paths = [initpath]
+        while(True):
+            new_paths = findpath(rta, current_paths)
+            #current_paths = [p for p in new_paths]
+            for path in new_paths:
+                if path[len(path)-1] in rta.accept_names:
+                    ctx = buildctx(rta, path, value)
                     return ctx
-                    
+
 def main():
     A = buildRTA("a.json")
     AA = buildAssistantRTA(A)
@@ -155,6 +175,9 @@ def main():
     #product_rta1 = fa_to_rta(rfa_to_fa(product1))
     product_rta4 = rfa_to_rta(product4)
     product_rta4.show()
+    print("---------------------findctx-------------------------")
+    ctx4 = findctx(product_rta4, 1)
+    print [tw.show() for tw in ctx4.tws], ctx4.value
     return 0
 
 if __name__=='__main__':
