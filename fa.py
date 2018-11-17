@@ -360,6 +360,30 @@ def rfa_to_fa(rfa):
     fa = FA(name, timed_alphabet, states, trans, initstate_name, accept_names)
     return fa
 
+def rfa_to_rta(rfa):
+    name = rfa.name
+    states = copy.deepcopy(rfa.states)
+    sigma = [term for term in rfa.timed_alphabet]
+    trans = []
+    for tran in rfa.trans:
+        tran_id = tran.id
+        source = tran.source
+        target = tran.target
+        label = tran.label
+        nf = NForm([],[],1,1)
+        for i in tran.nfnums:
+            nf = nform_union(nf, rfa.timed_alphabet[label][i])
+        timedlabel = TimedLabel("", label, nf)
+        temp_constraints = nform_to_union_intervals(timedlabel.nfc)
+        constraints = unintersect_intervals(temp_constraints)
+        nfc = union_intervals_to_nform(constraints)
+        new_tran = RTATran(tran_id, source, target, label, constraints, nfc)
+        trans.append(new_tran)
+    initstate_name = rfa.initstate_name
+    accept_names = copy.deepcopy(rfa.accept_names)
+    rta = RTA(name, sigma, states, trans, initstate_name, accept_names)
+    return rta
+
 def nfa_to_dfa(rfa):
     name = rfa.name
     #initstate_name = rfa.initstate_name

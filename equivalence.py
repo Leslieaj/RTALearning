@@ -86,8 +86,12 @@ def main():
     #newAA = fa_to_rta(rAA)
     #newAA.show()
     print("---------------------product------------------------")
-    product = rfa_product(comp_rH_DFA1, rAADFA)
-    product.show()
+    product1 = rfa_product(comp_rH_DFA1, rAADFA)
+    product1.show()
+    print("---------------------product_rta1------------------------")
+    #product_rta1 = fa_to_rta(rfa_to_fa(product1))
+    product_rta1 = rfa_to_rta(product1)
+    product_rta1.show()
     return 0
 
 if __name__=='__main__':
