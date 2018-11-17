@@ -210,9 +210,39 @@ class Constraint:
             return MAXVALUE
         else:
             return int(self.max_value)
-    
+
     def show(self):
         return self.guard
+
+def min_constraint_number(c):
+    """
+        get the minimal number in a interval.
+        1. if the interval is empty, return None
+        2. if [a, b$, return "a" .  Note: a < b, $ means ) or ]
+        3. if (a, b$, return "a.1" .
+    """
+    if c.isEmpty():
+        return None
+    if c.closed_min == True:
+        return int(c.min_value)
+    else:
+        return float(c.min_value+".1")
+
+def min_constraints_number(cs):
+    """
+        get the minimal number in unintersection intervals.
+        return the minimal number or None
+    """
+    minimal_numbers = []
+    for c in cs:
+        temp = min_constraint_number(c)
+        if temp != None:
+            minimal_numbers.append(temp)
+    minimal_numbers.sort()
+    if len(minimal_numbers) > 0:
+        return minimal_numbers[0]
+    else:
+        return None
 
 def intersect_constraint(c1, c2):
     if c1.isEmpty() == True or c2.isEmpty() == True:
@@ -368,5 +398,12 @@ def main():
     print("------------------------------")
     c6 = Constraint("(3,+)")
     print c6.isininterval(3)
+    print("---------------------------------")
+    print min_constraints_number([c3])
+    print min_constraint_number(Constraint("(0,0)"))
+    print min_constraint_number(c2)
+    print min_constraint_number(c4)
+    print min_constraints_number([c2, c5])
+    print min_constraints_number([c3, c5])
 if __name__=='__main__':
 	main()
