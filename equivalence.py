@@ -11,9 +11,10 @@ def findpath(rta, paths):
     onemorestep_paths = []
     for path in current_paths:
         for tran in rta.trans:
+            temp_path = copy.deepcopy(path)
             if tran.source == path[len(path)-1]:
-                path.append(tran.target)
-                onemorestep_paths.append(path)
+                temp_path.append(tran.target)
+                onemorestep_paths.append(temp_path)
     return onemorestep_paths
 
 def buildctx(rta, path, value):
@@ -33,19 +34,55 @@ def buildctx(rta, path, value):
     return ctx
                 
 def findctx(rta, value):
+    """
+        1. find a counter example: a accept path of rta.
+        2. the value is 0 or 1, it depends that if teacher do complement, it is 0.
+    """
     ctx = Element([],[value])
     if len(rta.states) == 0 or len(rta.accept_names) == 0:
         return ctx
     else:
         initpath = [rta.initstate_name]
         current_paths = [initpath]
-        while(True):
+        #the length of the longest path is less than states numbers
+        step = len(rta.states)-1
+        while(step > 0):
             new_paths = findpath(rta, current_paths)
-            #current_paths = [p for p in new_paths]
+            step = step - 1
+            current_paths = [p for p in new_paths]
             for path in new_paths:
                 if path[len(path)-1] in rta.accept_names:
                     ctx = buildctx(rta, path, value)
                     return ctx
+    return ctx
+
+def clean_rfa(rfa):
+    initpath = [rfa.initstate_name]
+    current_paths = [initpath]
+    state_names = [state.name for state in rfa.states]
+    reach_names = [rfa.initstate_name]
+    step = len(rfa.states)-1
+    while(step > 0):
+        new_paths = findpath(rfa, current_paths)
+        step = step - 1
+        current_paths = [p for p in new_paths]
+        for path in new_paths:
+            if path[len(path)-1] not in reach_names:
+                reach_names.append(path[len(path)-1])
+    trans = copy.deepcopy(rfa.trans)
+    temp_trans = copy.deepcopy(rfa.trans)
+    for tran in trans:
+        if (tran.source not in reach_names) or (tran.target not in reach_names):
+            temp_trans.remove(tran)
+    states = []
+    accept_names = []
+    for state in rfa.states:
+        if state.name in reach_names:
+            states.append(state)
+        if state.name in rfa.accept_names:
+            accept_names.append(state.name)
+    cleanrfa =  RFA(rfa.name, rfa.timed_alphabet, states, temp_trans, rfa.initstate_name, accept_names) 
+    return cleanrfa
 
 def main():
     A = buildRTA("a.json")
@@ -169,7 +206,7 @@ def main():
     #newAA = fa_to_rta(rAA)
     #newAA.show()
     print("---------------------product------------------------")
-    product4 = clean_deadstates(rfa_product(comp_rH_DFA4, rAADFA))
+    product4 = clean_rfa(rfa_product(comp_rH_DFA4, rAADFA))
     product4.show()
     print("---------------------product_rta4------------------------")
     #product_rta1 = fa_to_rta(rfa_to_fa(product1))
