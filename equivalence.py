@@ -30,6 +30,7 @@ def buildctx(rta, path, value):
                 time = min_constraints_number(tran.constraints)
                 tw = Timedword(action, time)
                 tws.append(tw)
+                break
     ctx = Element(tws,[value])
     return ctx
                 
@@ -52,6 +53,7 @@ def findctx(rta, value):
             current_paths = [p for p in new_paths]
             for path in new_paths:
                 if path[len(path)-1] in rta.accept_names:
+                    print path
                     ctx = buildctx(rta, path, value)
                     return ctx
     return ctx
@@ -119,6 +121,7 @@ def main():
     R = [e1,e2]
     E = []
     
+    AADFA = rta_to_fa(AA, "receiving")
     print("----------------------T1--------------------------")
     T1 = Table(S,R,E)
     T1.show()
@@ -128,9 +131,20 @@ def main():
     print("----------------------H1--------------------------")
     H1 = buildhypothesis(ea1, 1)
     H1.show()
+    print("----------------------ctx1------------------------")
+    H1DFA = rta_to_fa(H1, "receiving")
+    combined_alphabet = alphabet_combine(H1DFA.timed_alphabet, AADFA.timed_alphabet)
+    alphapartitions = alphabet_partitions(combined_alphabet)
+    rH1DFA = fa_to_rfa(H1DFA, alphapartitions)
+    rAADFA = fa_to_rfa(AADFA, alphapartitions)
+    comp_rH1DFA = rfa_complement(rH1DFA)
+    product1 = clean_rfa(rfa_product(comp_rH1DFA, rAADFA))
+    product_rta1 = rfa_to_rta(product1)
+    ctx1 = findctx(product_rta1, 1)
+    print [tw.show() for tw in ctx1.tws], ctx1.value
     print("----------------------T2--------------------------")
-    ctx1 = tws3
-    T2 = add_ctx(T1, ctx1, AA)
+    #ctx1 = tws3
+    T2 = add_ctx(T1, ctx1.tws, AA)
     T2.show()
     print("----------------------T3--------------------------")
     T3 = make_closed(T2, sigma, AA)
@@ -141,9 +155,21 @@ def main():
     print("----------------------H2--------------------------")
     H2 = buildhypothesis(ea2, 2)
     H2.show()
+    print("----------------------ctx2------------------------")
+    H2DFA = rta_to_fa(H2, "receiving")
+    combined_alphabet = alphabet_combine(H2DFA.timed_alphabet, AADFA.timed_alphabet)
+    alphapartitions = alphabet_partitions(combined_alphabet)
+    rH2DFA = fa_to_rfa(H2DFA, alphapartitions)
+    rAADFA = fa_to_rfa(AADFA, alphapartitions)
+    comp_rAADFA = rfa_complement(rAADFA)
+    product2 = clean_rfa(rfa_product(rH2DFA, comp_rAADFA))
+    product_rta2 = rfa_to_rta(product2)
+    #product_rta2.show()
+    ctx2 = findctx(product_rta2, 0)
+    print [tw.show() for tw in ctx2.tws], ctx2.value
     print("----------------------T4--------------------------")
-    ctx2 = tws6
-    T4 = add_ctx(T3, ctx2, AA)
+    #ctx2 = tws6
+    T4 = add_ctx(T3, ctx2.tws, AA)
     T4.show()
     print("----------------------EA3-------------------------")
     ea3 = buildEvidenceAutomaton(T4, sigma)
@@ -151,45 +177,52 @@ def main():
     print("----------------------H3--------------------------")
     H3 = buildhypothesis(ea3, 3)
     H3.show()
+    print("----------------------ctx3------------------------")
+    H3DFA = rta_to_fa(H3, "receiving")
+    combined_alphabet = alphabet_combine(H3DFA.timed_alphabet, AADFA.timed_alphabet)
+    alphapartitions = alphabet_partitions(combined_alphabet)
+    rH3DFA = fa_to_rfa(H3DFA, alphapartitions)
+    rAADFA = fa_to_rfa(AADFA, alphapartitions)
+    comp_rAADFA = rfa_complement(rAADFA)
+    product3 = clean_rfa(rfa_product(rH3DFA, comp_rAADFA))
+    product_rta3 = rfa_to_rta(product3)
+    product_rta3.show()
+    ctx3 = findctx(product_rta3, 0)
+    print [tw.show() for tw in ctx3.tws], ctx3.value
     print("----------------------T5--------------------------")
-    ctx3 = tws8
-    T5 = add_ctx(T4, ctx3, AA)
+    #ctx3 = tws8
+    T5 = add_ctx(T4, ctx3.tws, AA)
     T5.show()
     print("----------------------T6--------------------------")
     T6 = make_consistent(T5, sigma, AA)
-    T6.show()  
-    print("----------------------T7--------------------------")
-    T7 = make_closed(T6, sigma, AA)
-    T7.show()
-    print("----------------------EA4-------------------------")
-    ea4 = buildEvidenceAutomaton(T7, sigma)
-    ea4.show()
-    print("----------------------H4--------------------------")
-    H4 = buildhypothesis(ea4, 4)
-    H4.show()
-    print("----------------------H_DFA1----------------------")
-    HDFA4 = rta_to_fa(H4, "receiving")
-    HDFA4.show()
-    print("----------------------AADFA----------------------")
-    AADFA = rta_to_fa(AA, "receiving")
-    AADFA.show()
-    print("---------------------partitions-------------")
-    combined_alphabet = alphabet_combine(HDFA4.timed_alphabet, AADFA.timed_alphabet)
-    alphapartitions = alphabet_partitions(combined_alphabet)
-    for key in alphapartitions:
-        print key
-        for nf in alphapartitions[key]:
-            nf.show()
-            print
+    T6.show()
+    #print("----------------------T7--------------------------")
+    #T7 = make_closed(T6, sigma, AA)
+    #T7.show()
+    #print("----------------------EA4-------------------------")
+    #ea4 = buildEvidenceAutomaton(T7, sigma)
+    #ea4.show()
+    #print("----------------------H4--------------------------")
+    #H4 = buildhypothesis(ea4, 4)
+    #H4.show()
+    #print("----------------------H_DFA4----------------------")
+    #HDFA4 = rta_to_fa(H4, "receiving")
+    #HDFA4.show()
+    #print("----------------------AADFA----------------------")
+    #AADFA = rta_to_fa(AA, "receiving")
+    #AADFA.show()
+    #print("---------------------partitions-------------")
+    #combined_alphabet = alphabet_combine(HDFA4.timed_alphabet, AADFA.timed_alphabet)
+    #alphapartitions = alphabet_partitions(combined_alphabet)
     #print("---------------------rH_DFA4---------------------")
-    rH_DFA4 = fa_to_rfa(HDFA4, alphapartitions)
-    #rH_DFA1.show()
-    print("---------------------rAADFA----------------------")
-    rAADFA = fa_to_rfa(AADFA, alphapartitions)
-    rAADFA.show()
-    print("---------------------comp of rH_DFA4-------------")
-    comp_rH_DFA4 = rfa_complement(rH_DFA4)
-    comp_rH_DFA4.show()
+    #rH_DFA4 = fa_to_rfa(HDFA4, alphapartitions)
+    #rH_DFA4.show()
+    #print("---------------------rAADFA----------------------")
+    #rAADFA = fa_to_rfa(AADFA, alphapartitions)
+    #rAADFA.show()
+    #print("---------------------comp of rH_DFA4-------------")
+    #comp_rH_DFA4 = rfa_complement(rH_DFA4)
+    #comp_rH_DFA4.show()
     #print("---------------------comp of rAADFA-----------------")
     #comp_rAADFA = rfa_complement(rAADFA)
     #comp_rAADFA.show()
@@ -205,16 +238,16 @@ def main():
     #print("---------------------newAA--------------------------")
     #newAA = fa_to_rta(rAA)
     #newAA.show()
-    print("---------------------product------------------------")
-    product4 = clean_rfa(rfa_product(comp_rH_DFA4, rAADFA))
-    product4.show()
-    print("---------------------product_rta4------------------------")
+    #print("---------------------product------------------------")
+    #product4 = clean_rfa(rfa_product(comp_rH_DFA4, rAADFA))
+    #product4.show()
+    #print("---------------------product_rta4------------------------")
     #product_rta1 = fa_to_rta(rfa_to_fa(product1))
-    product_rta4 = rfa_to_rta(product4)
-    product_rta4.show()
-    print("---------------------findctx-------------------------")
-    ctx4 = findctx(product_rta4, 1)
-    print [tw.show() for tw in ctx4.tws], ctx4.value
+    #product_rta4 = rfa_to_rta(product4)
+    #product_rta4.show()
+    #print("---------------------findctx-------------------------")
+    #ctx4 = findctx(product_rta4, 1)
+    #print [tw.show() for tw in ctx4.tws], ctx4.value
     return 0
 
 if __name__=='__main__':
