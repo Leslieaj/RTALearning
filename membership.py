@@ -99,12 +99,15 @@ class Table():
                         for e2 in temp_elements2:
                             #print [tw.show() for tw in e1.tws], [tw.show() for tw in e2.tws]
                             if len(e1.tws) == 1 and len(e2.tws) == 1 and e1.tws == e2.tws:
-                                flag = False
-                                new_a = e1.tws
-                                for i in range(0, len(e1.value)):
-                                    if e1.value[i] != e2.value[i]:
-                                        new_e_index = i
-                                        return flag, new_a, new_e_index
+                                if e1.row() == e2.row():
+                                    pass
+                                else:
+                                    flag = False
+                                    new_a = e1.tws
+                                    for i in range(0, len(e1.value)):
+                                        if e1.value[i] != e2.value[i]:
+                                            new_e_index = i
+                                            return flag, new_a, new_e_index
         return flag, new_a, new_e_index
     
     def show(self):
@@ -343,16 +346,16 @@ def main():
     ctx3 = tws8
     T5 = add_ctx(T4, ctx3, AA)
     T5.show()
-    #print("----------------------T6--------------------------")
-    #T6 = make_consistent(T5, sigma, AA)
-    #T6.show()  
-    #print("----------------------T7--------------------------")
-    #T7 = make_closed(T6, sigma, AA)
-    #T7.show()
-    #print("----------------------T8--------------------------")
-    #ctx4 = tws11
-    #T8 = add_ctx(T7, ctx4, AA)
-    #T8.show()
+    print("----------------------T6--------------------------")
+    T6 = make_consistent(T5, sigma, AA)
+    T6.show()  
+    print("----------------------T7--------------------------")
+    T7 = make_closed(T6, sigma, AA)
+    T7.show()
+    print("----------------------T8--------------------------")
+    ctx4 = tws11
+    T8 = add_ctx(T7, ctx4, AA)
+    T8.show()
     test_is_prefix()
     #test_close(T, sigma, AA)
     #test_prefixes()
