@@ -80,34 +80,31 @@ class Table():
         new_a = None
         new_e_index = None
         table_element = [s for s in self.S] + [r for r in self.R]
-        #for i in range(0, len(table_element)-1):
-            #for j in range(i+1, len(table_element)):
-                #if table_element[i].row() == table_element[j].row():
-        if table_element[0].row() == table_element[2].row():
-            print [tw.show() for tw in table_element[0].tws]
-            print [tw.show() for tw in table_element[2].tws]
-            temp_elements1 = []
-            temp_elements2 = []
-            for element in table_element:
-                if is_prefix(element.tws, table_element[0].tws):
-                    new_element1 = Element(delete_prefix(element.tws, table_element[0].tws), [v for v in element.value])
-                    temp_elements1.append(new_element1)
-                if is_prefix(element.tws, table_element[2].tws):
-                    new_element2 = Element(delete_prefix(element.tws, table_element[2].tws), [v for v in element.value])
-                    temp_elements2.append(new_element2)
-                #print len(temp_elements1)
-                #print len(temp_elements2)
-                for e1 in temp_elements1:
-                    [tw.show() for tw in e1.tws]
-                    for e2 in temp_elements2:
-                        [tw.show() for tw in e2.tws]
-                        if len(e1.tws) == 1 and len(e2.tws) == 1 and e1.tws == e2.tws:
-                            flag = False
-                            new_a = e1.tws
-                            for i in range(0, len(e1.value)):
-                                if e1.value[i] != e2.value[i]:
-                                    new_e_index = i
-                                    return flag, new_a, new_e_index
+        for i in range(0, len(table_element)-1):
+            for j in range(i+1, len(table_element)):
+                if table_element[i].row() == table_element[j].row():
+                    temp_elements1 = []
+                    temp_elements2 = []
+                    #print len(table_element[2].tws), [tw.show() for tw in table_element[2].tws]
+                    for element in table_element:
+                        #print "element", [tw.show() for tw in element.tws]
+                        if is_prefix(element.tws, table_element[i].tws):
+                            new_element1 = Element(delete_prefix(element.tws, table_element[i].tws), [v for v in element.value])
+                            temp_elements1.append(new_element1)
+                        if is_prefix(element.tws, table_element[j].tws):
+                            #print "e2", [tw.show() for tw in element.tws]
+                            new_element2 = Element(delete_prefix(element.tws, table_element[j].tws), [v for v in element.value])
+                            temp_elements2.append(new_element2)
+                    for e1 in temp_elements1:
+                        for e2 in temp_elements2:
+                            #print [tw.show() for tw in e1.tws], [tw.show() for tw in e2.tws]
+                            if len(e1.tws) == 1 and len(e2.tws) == 1 and e1.tws == e2.tws:
+                                flag = False
+                                new_a = e1.tws
+                                for i in range(0, len(e1.value)):
+                                    if e1.value[i] != e2.value[i]:
+                                        new_e_index = i
+                                        return flag, new_a, new_e_index
         return flag, new_a, new_e_index
     
     def show(self):
@@ -139,7 +136,7 @@ def make_closed(table, sigma, rta):
 
 def make_consistent(table, sigma, rta):
     flag, new_a, new_e_index = table.is_consistent()
-    print flag
+    #print flag
     new_E = [tws for tws in table.E]
     new_e = [tw for tw in new_a]
     if new_e_index > 0:
@@ -200,7 +197,9 @@ def is_prefix(tws, pref):
             return False
         else:
             for i in range(0, len(pref)):
-                if tws[i] != pref[i] :
+                if tws[i] == pref[i]:
+                    pass
+                else:
                     return False
             return True
 
@@ -265,19 +264,21 @@ def test_is_prefix():
     tws11 = [tw6,tw3] # (b,2) (a,5)
     tws12 = [tws6] #(b,2)
     tws13 = [tw3,tw1,tw2]
-    print is_prefix(tws4, tws3)
-    print is_prefix(tws3, tws4)
-    print is_prefix(tws4, tws1)
-    print is_prefix(tws3, tws0)
-    print is_prefix(tws0, tws0)
-    print is_prefix(tws0, tws10)
-    print is_prefix(tws11, tws10)
-    print is_prefix(tws13, tws4)
+    tws14 = [tw1,tw3]
+    print is_prefix(tws14, tws1)
+    #print is_prefix(tws4, tws3)
+    #print is_prefix(tws3, tws4)
+    #print is_prefix(tws4, tws1)
+    #print is_prefix(tws3, tws0)
+    #print is_prefix(tws0, tws0)
+    #print is_prefix(tws0, tws10)
+    #print is_prefix(tws11, tws10)
+    #print is_prefix(tws13, tws4)
     
-    print [tw.show() for tw in delete_prefix(tws4, tws3)]
-    print [tw.show() for tw in delete_prefix(tws3, tws0)]
-    print [tw.show() for tw in delete_prefix(tws0, tws0)]
-    print [tw.show() for tw in delete_prefix(tws13, tws4)]
+    #print [tw.show() for tw in delete_prefix(tws4, tws3)]
+    #print [tw.show() for tw in delete_prefix(tws3, tws0)]
+    #print [tw.show() for tw in delete_prefix(tws0, tws0)]
+    #print [tw.show() for tw in delete_prefix(tws13, tws4)]
 
 def test_prefixes():
     tw1 = Timedword("a", 0)
@@ -342,17 +343,17 @@ def main():
     ctx3 = tws8
     T5 = add_ctx(T4, ctx3, AA)
     T5.show()
-    print("----------------------T6--------------------------")
-    T6 = make_consistent(T5, sigma, AA)
-    T6.show()  
-    print("----------------------T7--------------------------")
-    T7 = make_closed(T6, sigma, AA)
-    T7.show()
-    print("----------------------T8--------------------------")
-    ctx4 = tws11
-    T8 = add_ctx(T7, ctx4, AA)
-    T8.show()
-    #test_is_prefix()
+    #print("----------------------T6--------------------------")
+    #T6 = make_consistent(T5, sigma, AA)
+    #T6.show()  
+    #print("----------------------T7--------------------------")
+    #T7 = make_closed(T6, sigma, AA)
+    #T7.show()
+    #print("----------------------T8--------------------------")
+    #ctx4 = tws11
+    #T8 = add_ctx(T7, ctx4, AA)
+    #T8.show()
+    test_is_prefix()
     #test_close(T, sigma, AA)
     #test_prefixes()
     return 0
