@@ -1,34 +1,33 @@
 from membership import *
 from equivalence import *
 
+def init_table(sigma, rta):
+    S = [Element([],[])]
+    R = []
+    E = []
+    for action in sigma:
+        new_tw = Timedword(action, 0)
+        new_element = Element([new_tw],[])
+        R.append(new_element)
+    for s in S:
+        fill(s, E, rta)
+    for r in R:
+        fill(r, E, rta)
+    T = Table(S, R, E)
+    return T
+
 def main():
     A = buildRTA("a.json")
     AA = buildAssistantRTA(A)
-    sigma = ["a", "b"]
-
     AADFA = rta_to_fa(AA, "receiving")
-    
-    tw1 = Timedword("a", 0)
-    tw2 = Timedword("b", 0)
-    tws0 = [] # empty
-    tws1 = [tw1] # (a,0)
-    tws2 = [tw2] # (b,0)
-    e0 = Element(tws0,[])
-    e1 = Element(tws1,[])
-    e2 = Element(tws2,[])
 
-    S = [e0]
-    R = [e1,e2]
-    E = []
-    for s in S:
-        fill(s, E, AA)
-    for r in R:
-        fill(r, E, AA)
-    T1 = Table(S, R, E)
+    sigma = ["a", "b"]
+    T1 = init_table(sigma, AA)
     t_number = 1
     print "Table " + str(t_number) + " is as follow."
     T1.show()
     print "--------------------------------------------------"
+
     equivalent = False
     table = copy.deepcopy(T1)
     h_number = 0
@@ -80,7 +79,6 @@ def main():
         print "Succeed! The learned RTA is as follows."
         target.show()
         
-
 if __name__=='__main__':
 	main()
 
