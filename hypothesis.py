@@ -113,11 +113,22 @@ def buildhypothesis(ea, n):
                 constraints = []
                 for tw in tran.label:
                     index = timepoints.index(tw.time)
+                    temp_constraint = None
                     if index + 1 < len(timepoints):
-                        temp_constraint = Constraint("["+str(tw.time)+","+str(timepoints[index+1])+")")
+                        if isinstance(tw.time,int) and isinstance(timepoints[index+1], int):
+                            temp_constraint = Constraint("["+str(tw.time)+","+str(timepoints[index+1])+")")
+                        elif isinstance(tw.time,int) and not isinstance(timepoints[index+1], int):
+                            temp_constraint = Constraint("["+str(tw.time)+","+str(int(timepoints[index+1]))+"]")
+                        elif not isinstance(tw.time,int) and isinstance(timepoints[index+1], int):
+                            temp_constraint = Constraint("("+str(int(tw.time))+","+str(timepoints[index+1])+")")
+                        else:
+                            temp_constraint = Constraint("("+str(int(tw.time))+","+str(int(timepoints[index+1]))+"]")
                         constraints.append(temp_constraint)
                     else:
-                        temp_constraint = Constraint("["+str(tw.time)+"," + "+" + ")")
+                        if isinstance(tw.time,int):
+                            temp_constraint = Constraint("["+str(tw.time)+"," + "+" + ")")
+                        else:
+                            temp_constraint = Constraint("("+str(int(tw.time))+"," + "+" + ")")
                         constraints.append(temp_constraint)
                 nfc = union_intervals_to_nform(constraints)
                 temp_tran = RTATran(tran.id, tran.source, tran.target, tran.label[0].action, constraints, nfc)
