@@ -2,6 +2,7 @@
 
 from hypothesis import *
 from fa import *
+import random
 
 def findpath(rta, paths):
     """
@@ -53,7 +54,7 @@ def findctx(rta, value):
             current_paths = [p for p in new_paths]
             for path in new_paths:
                 if path[len(path)-1] in rta.accept_names:
-                    print path
+                    #print path
                     ctx = buildctx(rta, path, value)
                     return ctx
     return ctx
@@ -85,6 +86,36 @@ def clean_rfa(rfa):
             accept_names.append(state.name)
     cleanrfa =  RFA(rfa.name, rfa.timed_alphabet, states, temp_trans, rfa.initstate_name, accept_names) 
     return cleanrfa
+
+def equivalence_query(hypothesis, fa):
+    hdfa = rta_to_fa(hypothesis, "receiving")
+    combined_alphabet = alphabet_combine(hdfa.timed_alphabet, fa.timed_alphabet)
+    alphapartitions = alphabet_partitions(combined_alphabet)
+    refined_hdfa = fa_to_rfa(hdfa, alphapartitions)
+    refined_fa = fa_to_rfa(fa, alphapartitions)
+    comp_rhdfa = rfa_complement(refined_hdfa)
+    comp_rfa = rfa_complement(refined_fa)
+    product_neg = clean_rfa(rfa_product(refined_hdfa, comp_rfa))
+    product_pos = clean_rfa(rfa_product(comp_rhdfa, refined_fa))
+    product_neg_rta = rfa_to_rta(product_neg)
+    product_pos_rta = rfa_to_rta(product_pos)
+    ctx_neg = findctx(product_neg_rta, 0)
+    ctx_pos = findctx(product_pos_rta, 1)
+    ctx = Element([],[])
+    equivalent = False
+    if len(ctx_neg.tws) == 0 and len(ctx_pos.tws) == 0:
+        equivalent = True
+    elif len(ctx_neg.tws) != 0 and len(ctx_pos.tws) == 0:
+        ctx = ctx_neg
+    elif len(ctx_neg.tws) == 0 and len(ctx_pos.tws) != 0:
+        ctx = ctx_pos
+    else:
+        flag = random.randint(0,1)
+        if flag == 0:
+            ctx = ctx_neg
+        else:
+            ctx = ctx_pos
+    return equivalent, ctx
 
 def main():
     A = buildRTA("a.json")
