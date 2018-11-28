@@ -174,7 +174,7 @@ def make_consistent(new_a, new_e_index, table, sigma, rta):
     new_e = [tw for tw in new_a]
     if new_e_index > 0:
         e = table.E[new_e_index-1]
-        new_e.expend(e)
+        new_e.extend(e)
     new_E.append(new_e)
     new_S = [s for s in table.S]
     new_R = [r for r in table.R]
