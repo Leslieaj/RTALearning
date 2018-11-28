@@ -29,9 +29,9 @@ def main():
     start = time.time()
     T1 = init_table(sigma, AA)
     t_number = 1
-    #print "Table " + str(t_number) + " is as follow."
-    #T1.show()
-    #print "--------------------------------------------------"
+    print "Table " + str(t_number) + " is as follow."
+    T1.show()
+    print "--------------------------------------------------"
     
     equivalent = False
     table = copy.deepcopy(T1)
@@ -45,25 +45,25 @@ def main():
                 temp = make_closed(new_S, new_R, move, table, sigma, AA)
                 table = temp
                 t_number = t_number + 1
-                #print "Table " + str(t_number) + " is as follow."
-                #table.show()
-                #print "--------------------------------------------------"
+                print "Table " + str(t_number) + " is as follow."
+                table.show()
+                print "--------------------------------------------------"
             flag_consistent, new_a, new_e_index = table.is_consistent()
             if flag_consistent == False:
                 temp = make_consistent(new_a, new_e_index, table, sigma, AA)
                 table = temp
                 t_number = t_number + 1
-                #print "Table " + str(t_number) + " is as follow."
-                #table.show()
-                #print "--------------------------------------------------"
+                print "Table " + str(t_number) + " is as follow."
+                table.show()
+                print "--------------------------------------------------"
             flag_evi_closed, new_added = table.is_evidence_closed()
             if flag_evi_closed == False:
                 temp = make_evidence_closed(new_added, table, sigma, AA)
                 table = temp
                 t_number = t_number + 1
-                #print "Table " + str(t_number) + " is as follow."
-                #table.show()
-                #print "--------------------------------------------------"
+                print "Table " + str(t_number) + " is as follow."
+                table.show()
+                print "--------------------------------------------------"
             prepared = table.is_prepared()
         ea = buildEvidenceAutomaton(table, sigma)
         #h_number = h_number + 1
@@ -75,9 +75,9 @@ def main():
             temp = add_ctx(table, ctx.tws, AA)
             table = temp
             t_number = t_number + 1
-            #print "Table " + str(t_number) + " is as follow."
-            #table.show()
-            #print "--------------------------------------------------"
+            print "Table " + str(t_number) + " is as follow."
+            table.show()
+            print "--------------------------------------------------"
     end = time.time()
     if target is None:
         print "Error! Learning Failed."
@@ -86,6 +86,8 @@ def main():
         target.show()
         print "---------------------------------------------------"
         print "Total time: " + str(end-start)
+    return 0
+
 if __name__=='__main__':
 	main()
 
