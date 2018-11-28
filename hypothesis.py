@@ -198,26 +198,30 @@ def main():
     T5.show()
     print("----------------------T6--------------------------")
     T6 = make_consistent(T5, sigma, AA)
-    T6.show()  
+    T6.show()
+    flag_evi, new_R = T6.is_evidence_closed()
+    print flag_evi
+    for r in new_R:
+        print [tw.show() for tw in r.tws]
     print("----------------------T7--------------------------")
     T7 = make_closed(T6, sigma, AA)
-    T7.show()
+    #T7.show()
     print("----------------------EA4-------------------------")
     ea4 = buildEvidenceAutomaton(T7, sigma)
-    ea4.show()
+    #ea4.show()
     print("----------------------H4--------------------------")
     H4 = buildhypothesis(ea4, 4)
-    H4.show()
+    #H4.show()
     print("----------------------T8--------------------------")
     ctx4 = tws11
     T8 = add_ctx(T7, ctx4, AA)
-    T8.show()
+    #T8.show()
     print("----------------------EA5--------------------------")
     ea5 = buildEvidenceAutomaton(T8, sigma)
-    ea5.show()
+    #ea5.show()
     print("----------------------H5---------------------------")
     H5 = buildhypothesis(ea5, 5)
-    H5.show()
+    #H5.show()
     
     return 0
 

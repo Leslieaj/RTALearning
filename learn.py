@@ -51,8 +51,11 @@ def main():
     T2 = add_ctx(T1, ctx11.tws, AA)
     T2.show()
     print("----------------------T3--------------------------")
-    T3 = make_closed(T2, sigma, AA)
-    T3.show()
+    flag_closed, new_S, new_R, move = T2.is_closed()
+    T3 = None
+    if flag_closed == False:
+        T3 = make_closed(new_S, new_R, move, T2, sigma, AA)
+        T3.show()
     print("----------------------EA2-------------------------")
     ea2 = buildEvidenceAutomaton(T3, sigma)
     ea2.show()
@@ -104,11 +107,20 @@ def main():
     T5 = add_ctx(T4, ctx30.tws, AA)
     T5.show()
     print("----------------------T6--------------------------")
-    T6 = make_consistent(T5, sigma, AA)
-    T6.show()
+    flag_consistent, new_a, new_e_index = T5.is_consistent()
+    T6 = None
+    if flag_consistent == False:
+        T6 = make_consistent(new_a, new_e_index, T5, sigma, AA)
+    flag_evi_closed, new_added = T6.is_evidence_closed()
+    new_T6 = None
+    if flag_evi_closed == False:
+        new_T6 = make_evidence_closed(new_added, T6, sigma, AA)
+        new_T6.show()
     print("----------------------T7--------------------------")
-    T7 = make_closed(T6, sigma, AA)
-    T7.show()
+    flag_closed, new_S, new_R, move = new_T6.is_closed()
+    if flag_closed == False:
+        T7 = make_closed(new_S, new_R, move, new_T6, sigma, AA)
+        T7.show()
     print("----------------------EA4-------------------------")
     ea4 = buildEvidenceAutomaton(T7, sigma)
     ea4.show()

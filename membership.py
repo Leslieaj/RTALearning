@@ -47,7 +47,7 @@ class Table():
                For each r \in R there exists s \in S such that row(s) = row(r).
             2. return four values, the first one is a flag to show closed or not, 
                the second one is the new S and the third one is the new R,
-               the last one is the list of the elements moved from R to S.
+               the last one is the list of elements moved from R to S.
         """
         new_S = [s for s in self.S]
         new_R = [r for r in self.R]
@@ -72,7 +72,7 @@ class Table():
 
     def is_consistent(self):
         """
-            deterine whether the table is consistent
+            determine whether the table is consistent
             (if tws1,tws2 \in S U R, if a \in sigma* tws1+a, tws2+a \in S U R and row(tws1) = row(tws2), 
             then row(tws1+a) = row(tws2+a))
         """
@@ -110,6 +110,27 @@ class Table():
                                             return flag, new_a, new_e_index
         return flag, new_a, new_e_index
     
+    def is_evidence_closed(self):
+        """
+            determine whether the table is evidence-closed.
+        """
+        flag = True
+        table_tws = [s.tws for s in self.S] + [r.tws for r in self.R]
+        #new_R = [r for r in self.R]
+        new_added = []
+        for s in self.S:
+            for e in self.E:
+                temp_se = [tw for tw in s.tws] + [tw for tw in e]
+                if temp_se not in table_tws:
+                    table_tws.append(temp_se)
+                    new_tws = temp_se
+                    new_element = Element(new_tws,[])
+                    #new_R.append(new_element)
+                    new_added.append(new_element)
+        if len(new_added) > 0:
+            flag = False
+        return flag, new_added
+
     def show(self):
         print("new_S:"+str(len(self.S)))
         for s in self.S:
@@ -121,8 +142,8 @@ class Table():
         for e in self.E:
             print [tw.show() for tw in e]
 
-def make_closed(table, sigma, rta):
-    flag, new_S, new_R, move = table.is_closed()
+def make_closed(new_S, new_R, move, table, sigma, rta):
+    #flag, new_S, new_R, move = table.is_closed()
     new_E = table.E
     closed_table = Table(new_S, new_R, new_E)
     table_tws = [s.tws for s in closed_table.S] + [r.tws for r in closed_table.R]
@@ -137,8 +158,8 @@ def make_closed(table, sigma, rta):
                 table_tws = [s.tws for s in closed_table.S] + [r.tws for r in closed_table.R]
     return closed_table
 
-def make_consistent(table, sigma, rta):
-    flag, new_a, new_e_index = table.is_consistent()
+def make_consistent(new_a, new_e_index, table, sigma, rta):
+    #flag, new_a, new_e_index = table.is_consistent()
     #print flag
     new_E = [tws for tws in table.E]
     new_e = [tw for tw in new_a]
@@ -155,6 +176,16 @@ def make_consistent(table, sigma, rta):
     consistent_table = Table(new_S, new_R, new_E)
     return consistent_table
 
+def make_evidence_closed(new_added, table, sigma, rta):
+    #flag, new_added = table.is_evidence_closed()
+    for i in range(0,len(new_added)):
+        fill(new_added[i], table.E, rta)
+    new_E = [e for e in table.E]
+    new_R = [r for r in table.R] + [nr for nr in new_added]
+    new_S = [s for s in table.S]
+    evidence_closed_table = Table(new_S, new_R, new_E)
+    return evidence_closed_table
+        
 def add_ctx(table, ctx, rta):
     """
         when receiving a counterexample ctx ( a timedwords), add it and its prefixes to R
