@@ -1,3 +1,5 @@
+import sys
+
 from membership import *
 from equivalence import *
 
@@ -17,11 +19,12 @@ def init_table(sigma, rta):
     return T
 
 def main():
-    A = buildRTA("a.json")
+    para = sys.argv
+    filename = str(para[1])
+    A, sigma = buildRTA(filename)
     AA = buildAssistantRTA(A)
     AADFA = rta_to_fa(AA, "receiving")
 
-    sigma = ["a", "b"]
     T1 = init_table(sigma, AA)
     t_number = 1
     print "Table " + str(t_number) + " is as follow."

@@ -126,7 +126,7 @@ def buildhypothesis(ea, n):
     return rta
 
 def main():
-    A = buildRTA("a.json")
+    A,_ = buildRTA("a.json")
     AA = buildAssistantRTA(A)
     sigma = ["a", "b"]
 

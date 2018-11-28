@@ -341,7 +341,7 @@ def test_prefixes():
 #----------------------------------------------------------------------------------------#
 
 def main():
-    A = buildRTA("a.json")
+    A,_ = buildRTA("a.json")
     AA = buildAssistantRTA(A)
     sigma = ["a", "b"]
 

@@ -136,7 +136,7 @@ def buildRTA(jsonfile):
         nfc = union_intervals_to_nform(constraints_list)
         rta_tran = RTATran(tran_id, source, target, label, constraints_list, nfc)
         trans += [rta_tran]
-    return RTA(name, sigma, S, trans, initstate, accept_list)
+    return RTA(name, sigma, S, trans, initstate, accept_list), sigma
 
 def buildAssistantRTA(rta):
     """
@@ -218,7 +218,7 @@ def tws_equal(tws1,tws2):
         return True
 
 def main():
-    A = buildRTA("a.json")
+    A,_ = buildRTA("a.json")
     AA = buildAssistantRTA(A)
     print("---------------------a.json----------------")
     A.show()

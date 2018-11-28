@@ -118,7 +118,7 @@ def equivalence_query(hypothesis, fa):
     return equivalent, ctx
 
 def main():
-    A = buildRTA("a.json")
+    A,_ = buildRTA("a.json")
     AA = buildAssistantRTA(A)
     sigma = ["a", "b"]
 
