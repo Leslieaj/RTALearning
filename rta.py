@@ -19,7 +19,7 @@ class RTATran:
     target = ""
     label = ""
     nfc = None
-    def __init__(self, id, source="", target="", label="", constraints = None, nfc=None):
+    def __init__(self, id, source="", target="", label="", constraints = None):
         self.id = id
         self.source = source
         self.target = target
