@@ -2,7 +2,8 @@
 #load rta model files (*.json)
 
 import json
-from normalform import *
+from interval import Constraint, complement_intervals
+#from normalform import *
 
 class State:
     name = ""
@@ -25,7 +26,7 @@ class RTATran:
         self.target = target
         self.label = label
         self.constraints = constraints or []
-        self.nfc = nfc
+        #self.nfc = nfc
     
     def is_pass(self, tw):
         """
@@ -97,7 +98,7 @@ class RTA:
         print "transitions (id, source_state, label, target_state, constraints, normalform guard): "
         for t in self.trans:
             print t.id, t.source, t.label, t.target, t.show_constraints()
-            t.nfc.show()
+            #t.nfc.show()
             print
         print "init state: "
         print self.initstate_name
@@ -133,8 +134,8 @@ def buildRTA(jsonfile):
             new_constraint = Constraint(constraint.strip())
             constraints_list.append(new_constraint)
         target = trans_set[tran][3].encode("utf-8")
-        nfc = union_intervals_to_nform(constraints_list)
-        rta_tran = RTATran(tran_id, source, target, label, constraints_list, nfc)
+        #nfc = union_intervals_to_nform(constraints_list)
+        rta_tran = RTATran(tran_id, source, target, label, constraints_list)
         trans += [rta_tran]
     return RTA(name, sigma, S, trans, initstate, accept_list), sigma
 
@@ -165,8 +166,8 @@ def buildAssistantRTA(rta):
             else:
                 cuintervals = [Constraint("[0,+)")]
             if len(cuintervals) > 0:
-                nfc = union_intervals_to_nform(cuintervals)
-                temp_tran = RTATran(tran_number, s.name, new_state.name, key, cuintervals, nfc)
+                #nfc = union_intervals_to_nform(cuintervals)
+                temp_tran = RTATran(tran_number, s.name, new_state.name, key, cuintervals)
                 tran_number = tran_number+1
                 new_trans.append(temp_tran)
     assist_name = "Assist_"+rta.name
@@ -180,8 +181,8 @@ def buildAssistantRTA(rta):
             assist_trans.append(tran)
         for label in rta.sigma:
             constraints = [Constraint("[0,+)")]
-            nfc = union_intervals_to_nform(constraints)
-            temp_tran = RTATran(tran_number, new_state.name, new_state.name, label, constraints, nfc)
+            #nfc = union_intervals_to_nform(constraints)
+            temp_tran = RTATran(tran_number, new_state.name, new_state.name, label, constraints)
             tran_number = tran_number+1
             assist_trans.append(temp_tran)
     return RTA(assist_name, rta.sigma, assist_states, assist_trans, assist_init, assist_accepts)
@@ -218,7 +219,7 @@ def tws_equal(tws1,tws2):
         return True
 
 def main():
-    A,_ = buildRTA("a.json")
+    A,_ = buildRTA("test_automata/a.json")
     AA = buildAssistantRTA(A)
     print("---------------------a.json----------------")
     A.show()
