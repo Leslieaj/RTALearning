@@ -387,8 +387,6 @@ def rfa_to_rta(rfa):
         source = tran.source
         target = tran.target
         label = tran.label
-        #cs = [rfa.timed_alphabet[label][i] for i in tran.nfnums]
-        #temp_constraints = union_constraints(cs)
         temp_constraints = [rfa.timed_alphabet[label][i].constraints[0] for i in tran.nfnums]
         constraints = unintersect_intervals(temp_constraints)
         new_tran = RTATran(tran_id, source, target, label, constraints)

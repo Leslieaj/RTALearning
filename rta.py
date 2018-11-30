@@ -3,7 +3,6 @@
 
 import json
 from interval import Constraint, complement_intervals
-#from normalform import *
 
 class State:
     name = ""
@@ -19,14 +18,12 @@ class RTATran:
     source = ""
     target = ""
     label = ""
-    nfc = None
     def __init__(self, id, source="", target="", label="", constraints = None):
         self.id = id
         self.source = source
         self.target = target
         self.label = label
         self.constraints = constraints or []
-        #self.nfc = nfc
     
     def is_pass(self, tw):
         """
@@ -95,10 +92,9 @@ class RTA:
         print "State (name, init, accept) :"
         for s in self.states:
             print s.name, s.init, s.accept
-        print "transitions (id, source_state, label, target_state, constraints, normalform guard): "
+        print "transitions (id, source_state, label, target_state, constraints): "
         for t in self.trans:
             print t.id, t.source, t.label, t.target, t.show_constraints()
-            #t.nfc.show()
             print
         print "init state: "
         print self.initstate_name
@@ -134,7 +130,6 @@ def buildRTA(jsonfile):
             new_constraint = Constraint(constraint.strip())
             constraints_list.append(new_constraint)
         target = trans_set[tran][3].encode("utf-8")
-        #nfc = union_intervals_to_nform(constraints_list)
         rta_tran = RTATran(tran_id, source, target, label, constraints_list)
         trans += [rta_tran]
     return RTA(name, sigma, S, trans, initstate, accept_list), sigma
@@ -166,7 +161,6 @@ def buildAssistantRTA(rta):
             else:
                 cuintervals = [Constraint("[0,+)")]
             if len(cuintervals) > 0:
-                #nfc = union_intervals_to_nform(cuintervals)
                 temp_tran = RTATran(tran_number, s.name, new_state.name, key, cuintervals)
                 tran_number = tran_number+1
                 new_trans.append(temp_tran)
@@ -181,7 +175,6 @@ def buildAssistantRTA(rta):
             assist_trans.append(tran)
         for label in rta.sigma:
             constraints = [Constraint("[0,+)")]
-            #nfc = union_intervals_to_nform(constraints)
             temp_tran = RTATran(tran_number, new_state.name, new_state.name, label, constraints)
             tran_number = tran_number+1
             assist_trans.append(temp_tran)
@@ -233,7 +226,6 @@ def main():
     print("-----------------------is_pass------------------------")
     for t in AA.trans:
         print t.id, t.source, t.label, t.target, t.show_constraints()
-        #t.nfc.show()
         print t.is_pass(tw2)
     print("----------------------is_accept-----------------------")
     tw3 = Timedword("b", 3)
