@@ -260,6 +260,22 @@ def intersect_constraint(c1, c2):
     else:
         return Constraint("(0,0)"), False
 
+def constraint_contain(c, intervals):
+    intertemp = []
+    for constraint in intervals:
+        intersect, flag = intersect_constraint(c, constraint)
+        if flag == True:
+            intertemp.append(intersect)
+    union = Constraint("(0,0)")
+    num = 1
+    for t in intertemp:
+        if num == 1 :
+            union, num = union_constraint(union, t)
+    if num==1 and union == c:
+        return True
+    else:
+        return False
+
 def union_constraint(c1, c2):
     if c1.isEmpty() == True:
         return c2, 1

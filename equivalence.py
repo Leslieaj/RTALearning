@@ -1,7 +1,7 @@
 #define the functions about equivalence query
 
 from hypothesis import *
-from fa import *
+from fanew import *
 import random
 
 def findpath(rta, paths):
@@ -90,11 +90,11 @@ def clean_rfa(rfa):
 def equivalence_query(hypothesis, fa):
     hdfa = rta_to_fa(hypothesis, "receiving")
     combined_alphabet = alphabet_combine(hdfa.timed_alphabet, fa.timed_alphabet)
-    alphapartitions = alphabet_partitions(combined_alphabet)
+    alphapartitions,_ = alphabet_partitions(combined_alphabet)
     refined_hdfa = fa_to_rfa(hdfa, alphapartitions)
     refined_fa = fa_to_rfa(fa, alphapartitions)
-    comp_rhdfa = rfa_complement(refined_hdfa)
-    comp_rfa = rfa_complement(refined_fa)
+    comp_rhdfa = complete_rfa_complement(refined_hdfa)
+    comp_rfa = complete_rfa_complement(refined_fa)
     product_neg = clean_rfa(rfa_product(refined_hdfa, comp_rfa))
     product_pos = clean_rfa(rfa_product(comp_rhdfa, refined_fa))
     product_neg_rta = rfa_to_rta(product_neg)
@@ -118,7 +118,7 @@ def equivalence_query(hypothesis, fa):
     return equivalent, ctx
 
 def main():
-    A,_ = buildRTA("a.json")
+    A,_ = buildRTA("test_automata/a.json")
     AA = buildAssistantRTA(A)
     sigma = ["a", "b"]
 
@@ -165,7 +165,11 @@ def main():
     print("----------------------ctx1------------------------")
     H1DFA = rta_to_fa(H1, "receiving")
     combined_alphabet = alphabet_combine(H1DFA.timed_alphabet, AADFA.timed_alphabet)
-    alphapartitions = alphabet_partitions(combined_alphabet)
+    for key in combined_alphabet:
+        print key
+        for c in combined_alphabet[key]:
+            c.show()
+    alphapartitions, _ = alphabet_partitions(combined_alphabet)
     rH1DFA = fa_to_rfa(H1DFA, alphapartitions)
     rAADFA = fa_to_rfa(AADFA, alphapartitions)
     comp_rH1DFA = rfa_complement(rH1DFA)

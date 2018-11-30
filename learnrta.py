@@ -1,5 +1,6 @@
 import sys
 
+import time
 from membership import *
 from equivalence import *
 
