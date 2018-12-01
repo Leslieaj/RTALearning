@@ -129,8 +129,8 @@ def buildjson(g):
         tran_dict[t_dict.keys()[0]] = t_dict.values()[0]
     
     gdict = {"name":g.name, "s":g.s, "sigma":g.sigma, "tran":tran_dict, "init":g.init, "accept":g.accept}
-    with open("test.json", "w") as f:
-        f.write(json.dumps(gdict))
+    with open("test1.json", "w") as f:
+        json.dump(gdict,f)
 
 def main():
     g = RTAGenerator('D',4,4,6)
