@@ -212,7 +212,7 @@ def tws_equal(tws1,tws2):
         return True
 
 def main():
-    A,_ = buildRTA("test_automata/a.json")
+    A,_ = buildRTA("test_automata/test.json")
     AA = buildAssistantRTA(A)
     print("---------------------a.json----------------")
     A.show()
@@ -224,9 +224,9 @@ def main():
     print tw1.show()
     print tw2.show()
     print("-----------------------is_pass------------------------")
-    for t in AA.trans:
-        print t.id, t.source, t.label, t.target, t.show_constraints()
-        print t.is_pass(tw2)
+    #for t in AA.trans:
+        #print t.id, t.source, t.label, t.target, t.show_constraints()
+        #print t.is_pass(tw2)
     print("----------------------is_accept-----------------------")
     tw3 = Timedword("b", 3)
     tw4 = Timedword("a", 5)
@@ -237,12 +237,12 @@ def main():
     tws3 = [tw4,tw3,tw5]
     tws4 = [tw3,tw4]
     tws5 = [tw4,tw3,tw4,tw5]
-    print AA.is_accept(tws0)
-    print AA.is_accept(tws1)
-    print AA.is_accept(tws2)
-    print AA.is_accept(tws3)
-    print AA.is_accept(tws4)
-    print AA.is_accept(tws5)
+    #print AA.is_accept(tws0)
+    #print AA.is_accept(tws1)
+    #print AA.is_accept(tws2)
+    #print AA.is_accept(tws3)
+    #print AA.is_accept(tws4)
+    #print AA.is_accept(tws5)
     
     print tw1 == tw4
     print tw1 == tw3
