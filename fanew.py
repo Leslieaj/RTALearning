@@ -396,22 +396,6 @@ def rfa_to_rta(rfa):
     rta = RTA(name, sigma, states, trans, initstate_name, accept_names)
     return rta
 
-def union_constraints(cs):
-    intervals = copy.deepcopy(cs)
-    lbsort(intervals)
-    union_intervals = []
-    union = Constraint("(0,0)")
-    num = 1
-    for constraint in intervals:
-        if num == 1:
-            union, num = union_constraint(union, constraint)
-        if num == 2:
-            union_intervals.append(union[0])
-            union = union[1]
-            union, num = union_constraint(union, constraint)
-    union_intervals.append(union)
-    return union_intervals
-
 def main():
     c1 = Constraint("[4,+]")
     c2 = Constraint("[0,0]")

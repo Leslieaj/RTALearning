@@ -2,7 +2,7 @@
 #load rta model files (*.json)
 
 import json
-from interval import Constraint, complement_intervals
+from interval import Constraint, complement_intervals, lbsort, union_constraints
 
 class State:
     name = ""
@@ -179,6 +179,13 @@ def buildAssistantRTA(rta):
             tran_number = tran_number+1
             assist_trans.append(temp_tran)
     return RTA(assist_name, rta.sigma, assist_states, assist_trans, assist_init, assist_accepts)
+
+def refine_rta_trans(rta):
+    for tran in rta.trans:
+        c_list = [c for c in tran.constraints]
+        lbsort(c_list)
+        union_intervals = union_constraints(c_list)
+        tran.constraints = union_intervals
 
 class Timedword():
     """

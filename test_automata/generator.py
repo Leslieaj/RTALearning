@@ -185,7 +185,7 @@ def jsonformat(text):
     return format_str
     
 def main():
-    g = RTAGenerator('D',4,4,6)
+    g = RTAGenerator('E',10,4,6)
     g.show()
     buildjson(g)
     return 0
