@@ -121,6 +121,17 @@ class RTAGenerator:
             print t_dict.keys()[0], t_dict.values()[0]
         print "init :", self.init
         print "accept :", self.accept
+"""
+def buildjson(g):
+    tran_dict = {}
+    for t in g.tran:
+        t_dict = t.show()
+        tran_dict[t_dict.keys()[0]] = t_dict.values()[0]
+    
+    gdict = {"name":g.name, "s":g.s, "sigma":g.sigma, "tran":tran_dict, "init":g.init, "accept":g.accept}
+    with open("test.json", "w") as f:
+        json.dump(gdict,f)
+"""
 
 def buildjson(g):
     tran_dict = {}
@@ -129,9 +140,50 @@ def buildjson(g):
         tran_dict[t_dict.keys()[0]] = t_dict.values()[0]
     
     gdict = {"name":g.name, "s":g.s, "sigma":g.sigma, "tran":tran_dict, "init":g.init, "accept":g.accept}
-    with open("test1.json", "w") as f:
-        json.dump(gdict,f)
+    text = json.dumps(gdict)
+    formattext = jsonformat(text)
+    with open('test2.json', 'w') as f:
+        f.write(formattext)
 
+def jsonformat(text):
+    text_list = []
+    left_brace_num = 0     # {
+    right_brace_num = 0    # }
+    bracket_num = 0 
+    for i in range(len(text)):
+        text_list.append(text[i])
+        if text[i] == '[' and left_brace_num == 1:
+            bracket_num = bracket_num + 1
+        if text[i] == ']' and left_brace_num == 1:
+            bracket_num = bracket_num - 1
+        if text[i] == '{':
+            left_brace_num = left_brace_num + 1
+            if left_brace_num == 1:
+                text_list.append('\n' + " "*4)
+            else:
+                bracket_num = 0
+                text_list.append('\n' + " "*4 + "    "*(left_brace_num-1))
+        if text[i] == '}':
+            left_brace_num = left_brace_num - 1
+        if text[i] == ',':
+            if text[i-1] == ']' and left_brace_num == 2:
+                if left_brace_num == 2:
+                    text_list.append('\n' + " "*7)
+                if left_brace_num == 1:
+                    text_list.append('\n' + " "*3)
+            elif text[i-1] == '}':
+                text_list.append('\n' + " "*3)
+                bracket_num = 0
+            elif left_brace_num == 1 and bracket_num == 0:
+                text_list.append('\n' + " "*3)
+        if text[i] == ']':
+            if text[i+1] == '}' and left_brace_num == 2:
+                text_list.append('\n' + " "*4)
+            if text[i+1] == '}' and left_brace_num == 1:
+                text_list.append('\n')
+    format_str = "".join(text_list)
+    return format_str
+    
 def main():
     g = RTAGenerator('D',4,4,6)
     g.show()
