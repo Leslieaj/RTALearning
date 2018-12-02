@@ -121,6 +121,29 @@ class RTAGenerator:
             print t_dict.keys()[0], t_dict.values()[0]
         print "init :", self.init
         print "accept :", self.accept
+
+def validation(g):
+    state_nums = len(g.s)
+    sources = [state for state in g.accept]
+    temp = [s for s in sources]
+    states_set = set()
+    for s in g.accept:
+        states_set.add(s)
+    i = 0
+    while i < state_nums:
+        i = i + 1
+        for t in g.tran:
+            temp = []
+            if t.target in sources:
+                temp.append(t.source)
+                states_set.add(t.source)
+                if len(states_set) == len(g.s):
+                    return True
+        sources = temp
+    if len(states_set) < len(g.s):
+        return False
+    else:
+        return True
 """
 def buildjson(g):
     tran_dict = {}
@@ -186,6 +209,8 @@ def jsonformat(text):
     
 def main():
     g = RTAGenerator('E',10,4,6)
+    while validation(g) != True:
+        g = RTAGenerator('E',10,4,6)
     g.show()
     buildjson(g)
     return 0
