@@ -30,7 +30,7 @@ class RTAGenerator:
             i = i + 1
             states.append(str(i))
         init = str(1)
-        acceptsize = random.randint(1,2)
+        acceptsize = random.randint(10,14)
         accept = random.sample(states, acceptsize)
         accept.sort()
         return states, init, accept
@@ -165,7 +165,7 @@ def buildjson(g):
     gdict = {"name":g.name, "s":g.s, "sigma":g.sigma, "tran":tran_dict, "init":g.init, "accept":g.accept}
     text = json.dumps(gdict)
     formattext = jsonformat(text)
-    with open('20_5_6.json', 'w') as f:
+    with open('test_automata/30_2_3.json', 'w') as f:
         f.write(formattext)
 
 def jsonformat(text):
@@ -208,9 +208,9 @@ def jsonformat(text):
     return format_str
     
 def main():
-    g = RTAGenerator('20_5_6',20,5,6)
-    while validation(g) != True:
-        g = RTAGenerator('20_5_6',20,5,6)
+    g = RTAGenerator('30_2_3',30,2,3)
+    #while validation(g) != True:
+        #g = RTAGenerator('30_2_3',30,2,3)
     g.show()
     buildjson(g)
     return 0

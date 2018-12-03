@@ -1,203 +1,124 @@
-#the main file
+import sys
 
+import time
 from membership import *
 from equivalence import *
 
-def main():
-    A,_ = buildRTA("test_automata/a.json")
-    AA = buildAssistantRTA(A)
-    sigma = ["a", "b"]
-
-    AADFA = rta_to_fa(AA, "receiving")
-    
-    tw1 = Timedword("a", 0)
-    tw2 = Timedword("b", 0)
-    tws0 = [] # empty
-    tws1 = [tw1] # (a,0)
-    tws2 = [tw2] # (b,0)
-    e0 = Element(tws0,[0])
-    e1 = Element(tws1,[0])
-    e2 = Element(tws2,[0])
-
-    S = [e0]
-    R = [e1,e2]
+def init_table(sigma, rta):
+    S = [Element([],[])]
+    R = []
     E = []
-    print("----------------------T1--------------------------")
-    T1 = Table(S,R,E)
+    for action in sigma:
+        new_tw = Timedword(action, 0)
+        new_element = Element([new_tw],[])
+        R.append(new_element)
+    for s in S:
+        fill(s, E, rta)
+    for r in R:
+        fill(r, E, rta)
+    T = Table(S, R, E)
+    return T
+
+def learn(AA, AADFA, sigma, file_pre):
+    print "**************Start to learn ...*******************"
+    start = time.time()
+    T1 = init_table(sigma, AA)
+    t_number = 1
+    print "Table " + str(t_number) + " is as follow."
     T1.show()
-    print("----------------------EA1-------------------------")
-    ea1 = buildEvidenceAutomaton(T1, sigma)
-    ea1.show()
-    print("----------------------H1--------------------------")
-    H1 = buildhypothesis(ea1, 1)
-    H1.show()
-    print("----------------------ctx1------------------------")
-    H1DFA = rta_to_fa(H1, "receiving")
-    combined_alphabet = alphabet_combine(H1DFA.timed_alphabet, AADFA.timed_alphabet)
-    alphapartitions,_ = alphabet_partitions(combined_alphabet)
-    rH1DFA = fa_to_rfa(H1DFA, alphapartitions)
-    rAADFA = fa_to_rfa(AADFA, alphapartitions)
-    comp_rH1DFA = complete_rfa_complement(rH1DFA)
-    comp_rAADFA = complete_rfa_complement(rAADFA)
-    product11 = clean_rfa(rfa_product(comp_rH1DFA, rAADFA))
-    product10 = clean_rfa(rfa_product(rH1DFA, comp_rAADFA))
-    product_rta11 = rfa_to_rta(product11)
-    product_rta10 = rfa_to_rta(product10)
-    ctx11 = findctx(product_rta11, 1)
-    ctx10 = findctx(product_rta10, 0)
-    print "0:", [tw.show() for tw in ctx10.tws], ctx10.value
-    print "1:", [tw.show() for tw in ctx11.tws], ctx11.value
-    print("----------------------T2--------------------------")
-    T2 = add_ctx(T1, ctx11.tws, AA)
-    T2.show()
-    print("----------------------T3--------------------------")
-    flag_closed, new_S, new_R, move = T2.is_closed()
-    T3 = None
-    if flag_closed == False:
-        T3 = make_closed(new_S, new_R, move, T2, sigma, AA)
-        T3.show()
-    print("----------------------EA2-------------------------")
-    ea2 = buildEvidenceAutomaton(T3, sigma)
-    ea2.show()
-    print("----------------------H2--------------------------")
-    H2 = buildhypothesis(ea2, 2)
-    H2.show()
-    print("----------------------ctx2------------------------")
-    H2DFA = rta_to_fa(H2, "receiving")
-    combined_alphabet = alphabet_combine(H2DFA.timed_alphabet, AADFA.timed_alphabet)
-    alphapartitions,_ = alphabet_partitions(combined_alphabet)
-    rH2DFA = fa_to_rfa(H2DFA, alphapartitions)
-    rAADFA = fa_to_rfa(AADFA, alphapartitions)
-    comp_rH2DFA = complete_rfa_complement(rH2DFA)
-    comp_rAADFA = complete_rfa_complement(rAADFA)
-    product20 = clean_rfa(rfa_product(rH2DFA, comp_rAADFA))
-    product21 = clean_rfa(rfa_product(comp_rH2DFA, rAADFA))
-    product_rta20 = rfa_to_rta(product20)
-    product_rta21 = rfa_to_rta(product21)
-    ctx20 = findctx(product_rta20, 0)
-    ctx21 = findctx(product_rta21, 1)
-    print "0:", [tw.show() for tw in ctx20.tws], ctx20.value
-    print "1:", [tw.show() for tw in ctx21.tws], ctx21.value
-    print("----------------------T4--------------------------")
-    T4 = add_ctx(T3, ctx20.tws, AA)
-    T4.show()
-    print("----------------------EA3-------------------------")
-    ea3 = buildEvidenceAutomaton(T4, sigma)
-    ea3.show()
-    print("----------------------H3--------------------------")
-    H3 = buildhypothesis(ea3, 3)
-    H3.show()
-    print("----------------------ctx3------------------------")
-    H3DFA = rta_to_fa(H3, "receiving")
-    combined_alphabet = alphabet_combine(H3DFA.timed_alphabet, AADFA.timed_alphabet)
-    alphapartitions,_ = alphabet_partitions(combined_alphabet)
-    rH3DFA = fa_to_rfa(H3DFA, alphapartitions)
-    rAADFA = fa_to_rfa(AADFA, alphapartitions)
-    comp_rH3DFA = complete_rfa_complement(rH3DFA)
-    comp_rAADFA = complete_rfa_complement(rAADFA)
-    product30 = clean_rfa(rfa_product(rH3DFA, comp_rAADFA))
-    product31 = clean_rfa(rfa_product(comp_rH3DFA, rAADFA))
-    product_rta30 = rfa_to_rta(product30)
-    product_rta31 = rfa_to_rta(product31)
-    ctx30 = findctx(product_rta30, 0)
-    ctx31 = findctx(product_rta31, 1)
-    print "0:", [tw.show() for tw in ctx30.tws], ctx30.value
-    print "1:", [tw.show() for tw in ctx31.tws], ctx31.value
-    print("----------------------T5--------------------------")
-    T5 = add_ctx(T4, ctx30.tws, AA)
-    T5.show()
-    print("----------------------T6--------------------------")
-    flag_consistent, new_a, new_e_index = T5.is_consistent()
-    T6 = None
-    if flag_consistent == False:
-        T6 = make_consistent(new_a, new_e_index, T5, sigma, AA)
-    flag_evi_closed, new_added = T6.is_evidence_closed()
-    new_T6 = None
-    if flag_evi_closed == False:
-        new_T6 = make_evidence_closed(new_added, T6, sigma, AA)
-        new_T6.show()
-    print("----------------------T7--------------------------")
-    flag_closed, new_S, new_R, move = new_T6.is_closed()
-    if flag_closed == False:
-        T7 = make_closed(new_S, new_R, move, new_T6, sigma, AA)
-        T7.show()
-    print("----------------------EA4-------------------------")
-    ea4 = buildEvidenceAutomaton(T7, sigma)
-    ea4.show()
-    print("----------------------H4--------------------------")
-    H4 = buildhypothesis(ea4, 4)
-    H4.show()
-    print("----------------------ctx4------------------------")
-    H4DFA = rta_to_fa(H4, "receiving")
-    combined_alphabet = alphabet_combine(H4DFA.timed_alphabet, AADFA.timed_alphabet)
-    alphapartitions,_ = alphabet_partitions(combined_alphabet)
-    rH4DFA = fa_to_rfa(H4DFA, alphapartitions)
-    rAADFA = fa_to_rfa(AADFA, alphapartitions)
-    comp_rH4DFA = complete_rfa_complement(rH4DFA)
-    comp_rAADFA = complete_rfa_complement(rAADFA)
-    product40 = clean_rfa(rfa_product(rH4DFA, comp_rAADFA))
-    product41 = clean_rfa(rfa_product(comp_rH4DFA, rAADFA))
-    product_rta40 = rfa_to_rta(product40)
-    product_rta41 = rfa_to_rta(product41)
-    ctx40 = findctx(product_rta40, 0)
-    ctx41 = findctx(product_rta41, 1)
-    print "0:", [tw.show() for tw in ctx40.tws], ctx40.value
-    print "1:", [tw.show() for tw in ctx41.tws], ctx41.value
-    print("----------------------T8--------------------------")
-    T8 = add_ctx(T7, ctx41.tws, AA)
-    T8.show()
-    print("----------------------EA5--------------------------")
-    ea5 = buildEvidenceAutomaton(T8, sigma)
-    ea5.show()
-    print("----------------------H5---------------------------")
-    H5 = buildhypothesis(ea5, 5)
-    H5.show()
-    print("----------------------ctx5-------------------------")
-    H5DFA = rta_to_fa(H5, "receiving")
-    combined_alphabet = alphabet_combine(H5DFA.timed_alphabet, AADFA.timed_alphabet)
-    alphapartitions,_ = alphabet_partitions(combined_alphabet)
-    rH5DFA = fa_to_rfa(H5DFA, alphapartitions)
-    rAADFA = fa_to_rfa(AADFA, alphapartitions)
-    comp_rH5DFA = complete_rfa_complement(rH5DFA)
-    comp_rAADFA = complete_rfa_complement(rAADFA)
-    product50 = clean_rfa(rfa_product(rH5DFA, comp_rAADFA))
-    product51 = clean_rfa(rfa_product(comp_rH5DFA, rAADFA))
-    product_rta50 = rfa_to_rta(product50)
-    product_rta51 = rfa_to_rta(product51)
-    ctx50 = findctx(product_rta50, 0)
-    ctx51 = findctx(product_rta51, 1)
-    print "0:", [tw.show() for tw in ctx50.tws], ctx50.value
-    print "1:", [tw.show() for tw in ctx51.tws], ctx51.value
-    print("---------------------T9-----------------------------")
-    T9 = add_ctx(T8, ctx50.tws, AA)
-    T9.show()
-    print("---------------------EA6---------------------------")
-    ea6 = buildEvidenceAutomaton(T9, sigma)
-    ea6.show()
-    print("----------------------H6---------------------------")
-    H6 = buildhypothesis(ea6, 6)
-    H6.show()
-    print("----------------------equal----------------------------")
-    H6DFA = rta_to_fa(H6, "receiving")
-    combined_alphabet = alphabet_combine(H6DFA.timed_alphabet, AADFA.timed_alphabet)
-    alphapartitions,_ = alphabet_partitions(combined_alphabet)
-    rH6DFA = fa_to_rfa(H6DFA, alphapartitions)
-    rAADFA = fa_to_rfa(AADFA, alphapartitions)
-    comp_rH6DFA = complete_rfa_complement(rH6DFA)
-    comp_rAADFA = complete_rfa_complement(rAADFA)
-    product60 = clean_rfa(rfa_product(rH6DFA, comp_rAADFA))
-    product61 = clean_rfa(rfa_product(comp_rH6DFA, rAADFA))
-    product_rta60 = rfa_to_rta(product60)
-    product_rta61 = rfa_to_rta(product61)
-    ctx60 = findctx(product_rta60, 0)
-    ctx61 = findctx(product_rta61, 1)
-    print "0:", [tw.show() for tw in ctx60.tws], ctx60.value
-    print "1:", [tw.show() for tw in ctx61.tws], ctx61.value
-    # print("ctx type: 0")
-    # product_rta60.show()
-    # print("ctx type: 1")
-    # product_rta61.show()
+    print "--------------------------------------------------"
+    
+    equivalent = False
+    table = copy.deepcopy(T1)
+    h_number = 0
+    eq_number = 0
+    target = None
+    while equivalent == False:
+        prepared = table.is_prepared()
+        while prepared == False:
+            flag_closed, new_S, new_R, move = table.is_closed()
+            if flag_closed == False:
+                temp = make_closed(new_S, new_R, move, table, sigma, AA)
+                table = temp
+                t_number = t_number + 1
+                print "Table " + str(t_number) + " is as follow."
+                table.show()
+                print "--------------------------------------------------"
+            flag_consistent, new_a, new_e_index = table.is_consistent()
+            if flag_consistent == False:
+                temp = make_consistent(new_a, new_e_index, table, sigma, AA)
+                table = temp
+                t_number = t_number + 1
+                print "Table " + str(t_number) + " is as follow."
+                table.show()
+                print "--------------------------------------------------"
+            flag_evi_closed, new_added = table.is_evidence_closed()
+            if flag_evi_closed == False:
+                temp = make_evidence_closed(new_added, table, sigma, AA)
+                table = temp
+                t_number = t_number + 1
+                print "Table " + str(t_number) + " is as follow."
+                table.show()
+                print "--------------------------------------------------"
+            prepared = table.is_prepared()
+        ea = buildEvidenceAutomaton(table, sigma)
+        eq_number = eq_number + 1
+        #h_number = h_number + 1
+        h_number = t_number
+        h = buildhypothesis(ea, h_number)
+        target = copy.deepcopy(h)
+        equivalent, ctx = equivalence_query(h, AADFA)
+        if equivalent == False:
+            temp = add_ctx(table, ctx.tws, AA)
+            table = temp
+            t_number = t_number + 1
+            print "Table " + str(t_number) + " is as follow."
+            table.show()
+            print "--------------------------------------------------"
+    end = time.time()
+    if target is None:
+        print "Error! Learning Failed."
+        print "*******************Failed .***********************"
+    else:
+        print "Succeed! The learned RTA is as follows."
+        print
+        target.show()
+        print "---------------------------------------------------"
+        print "Total time of learning: " + str(end-start)
+        print "---------------------------------------------------"
+        print "Time intervals simplification..."
+        print
+        print "The learned Canonical Real-time Automtaton: "
+        print
+        refine_rta_trans(target)
+        target.show()
+        print "---------------------------------------------------"
+        print "Total time: " + str(end-start)
+        print "The element number of S in the last table: " + str(len(table.S))
+        print "The element number of R in the last table: " + str(len(table.R))
+        print "The element number of E in the last table: " + str(len(table.E))
+        print "Total number of observation table: " + str(t_number)
+        print "Total number of membership query: " + str((len(table.S)+len(table.R))*(len(table.E)+1))
+        print "Total number of equivalence query: " + str(eq_number)
+        print "*******************Succeed !***********************"
+        folders = file_pre.split('/')
+	folder = "/".join(folders[:-1])
+	fname = folders[len(folders)-1].split('-')[0]
+        with open(folder+'/result/'+fname + '_result.txt', 'a') as f:
+            output = " ".join([str(end-start), str(len(table.S)), str(len(table.R)), str(len(table.E)), str(t_number), str((len(table.S)+len(table.R))*(len(table.E)+1)), str(eq_number), '\n'])
+            f.write(output)
+    return 0
+
+def main():
+    para = sys.argv
+    filename = str(para[1])
+    file_pre,_ = filename.split('.',1)
+    A, sigma = buildRTA(filename)
+    AA = buildAssistantRTA(A)
+    AADFA = rta_to_fa(AA, "receiving")
+    learn(AA, AADFA, sigma, file_pre)
     return 0
 
 if __name__=='__main__':
 	main()
+
