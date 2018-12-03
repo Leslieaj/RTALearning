@@ -19,13 +19,7 @@ def init_table(sigma, rta):
     T = Table(S, R, E)
     return T
 
-def main():
-    para = sys.argv
-    filename = str(para[1])
-    A, sigma = buildRTA(filename)
-    AA = buildAssistantRTA(A)
-    AADFA = rta_to_fa(AA, "receiving")
-    
+def learn(AA, AADFA, sigma, file_pre):
     print "**************Start to learn ...*******************"
     start = time.time()
     T1 = init_table(sigma, AA)
@@ -100,10 +94,27 @@ def main():
         target.show()
         print "---------------------------------------------------"
         print "Total time: " + str(end-start)
+        print "The element number of S in the last table: " + str(len(table.S))
+        print "The element number of R in the last table: " + str(len(table.R))
+        print "The element number of E in the last table: " + str(len(table.E))
         print "Total number of observation table: " + str(t_number)
         print "Total number of membership query: " + str((len(table.S)+len(table.R))*(len(table.E)+1))
         print "Total number of equivalence query: " + str(eq_number)
         print "*******************Succeed !***********************"
+        folder,fname = file_pre.split('/')
+        with open(folder+'/result/'+fname + '_result.txt', 'a') as f:
+            output = " ".join([str(end-start), str(len(table.S)), str(len(table.R)), str(len(table.E)), str(t_number), str((len(table.S)+len(table.R))*(len(table.E)+1)), str(eq_number), '\n'])
+            f.write(output)
+    return 0
+
+def main():
+    para = sys.argv
+    filename = str(para[1])
+    file_pre,_ = filename.split('.',1)
+    A, sigma = buildRTA(filename)
+    AA = buildAssistantRTA(A)
+    AADFA = rta_to_fa(AA, "receiving")
+    learn(AA, AADFA, sigma, file_pre)
     return 0
 
 if __name__=='__main__':

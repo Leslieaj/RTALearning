@@ -165,7 +165,7 @@ def buildjson(g):
     gdict = {"name":g.name, "s":g.s, "sigma":g.sigma, "tran":tran_dict, "init":g.init, "accept":g.accept}
     text = json.dumps(gdict)
     formattext = jsonformat(text)
-    with open('test2.json', 'w') as f:
+    with open('20_5_6.json', 'w') as f:
         f.write(formattext)
 
 def jsonformat(text):
@@ -208,9 +208,9 @@ def jsonformat(text):
     return format_str
     
 def main():
-    g = RTAGenerator('E',10,4,6)
+    g = RTAGenerator('20_5_6',20,5,6)
     while validation(g) != True:
-        g = RTAGenerator('E',10,4,6)
+        g = RTAGenerator('20_5_6',20,5,6)
     g.show()
     buildjson(g)
     return 0

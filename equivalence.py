@@ -93,8 +93,8 @@ def equivalence_query(hypothesis, fa):
     alphapartitions,_ = alphabet_partitions(combined_alphabet)
     refined_hdfa = fa_to_rfa(hdfa, alphapartitions)
     refined_fa = fa_to_rfa(fa, alphapartitions)
-    comp_rhdfa = complete_rfa_complement(refined_hdfa)
-    comp_rfa = complete_rfa_complement(refined_fa)
+    comp_rhdfa = rfa_complement(refined_hdfa)
+    comp_rfa = rfa_complement(refined_fa)
     #product_neg = clean_rfa(rfa_product(refined_hdfa, comp_rfa))
     #product_pos = clean_rfa(rfa_product(comp_rhdfa, refined_fa))
     product_neg = rfa_product(refined_hdfa, comp_rfa)
@@ -118,6 +118,36 @@ def equivalence_query(hypothesis, fa):
         else:
             ctx = ctx_pos
     return equivalent, ctx
+
+"""
+def equivalence_query(hypothesis, fa):
+    hdfa = rta_to_fa(hypothesis, "receiving")
+    combined_alphabet = alphabet_combine(hdfa.timed_alphabet, fa.timed_alphabet)
+    alphapartitions,_ = alphabet_partitions(combined_alphabet)
+    refined_hdfa = fa_to_rfa(hdfa, alphapartitions)
+    refined_fa = fa_to_rfa(fa, alphapartitions)
+    
+    ctx_pos = Element([],[])
+    ctx_neg = Element([],[])
+    ctx = Element([],[])
+    equivalent = False
+    comp_rfa = complete_rfa_complement(refined_fa)
+    product_neg = rfa_product(refined_hdfa, comp_rfa)
+    product_neg_rta = rfa_to_rta(product_neg)
+    ctx_neg = findctx(product_neg_rta, 0)
+    if len(ctx_neg.tws) == 0:
+        comp_rhdfa = complete_rfa_complement(refined_hdfa)
+        product_pos = rfa_product(comp_rhdfa, refined_fa)
+        product_pos_rta = rfa_to_rta(product_pos)
+        ctx_pos = findctx(product_pos_rta, 1)
+        if len(ctx_pos.tws) == 0:
+            equivalent = True
+        else:
+            ctx = ctx_pos
+    else:
+        ctx = ctx_neg
+    return equivalent, ctx
+"""
 
 def main():
     A,_ = buildRTA("test_automata/a.json")
