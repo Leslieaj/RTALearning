@@ -1,6 +1,6 @@
 #some definitions about deterministic real-time automaton
 #load rta model files (*.json)
-
+import sys
 import json
 from interval import Constraint, complement_intervals, lbsort, union_constraints
 
@@ -219,42 +219,19 @@ def tws_equal(tws1,tws2):
         return True
 
 def main():
-    A,_ = buildRTA("test_automata/test.json")
+    paras = sys.argv
+    #A,_ = buildRTA("test_automata/test.json")
+    A,_ = buildRTA(paras[1])
     AA = buildAssistantRTA(A)
-    print("---------------------a.json----------------")
-    A.show()
-    print("--------------------Assistant---------------------------")
-    AA.show()
-    print("--------------------time words------------------------")
-    tw1 = Timedword("a", 5)
-    tw2 = Timedword("b", 2.1)
-    print tw1.show()
-    print tw2.show()
-    print("-----------------------is_pass------------------------")
-    #for t in AA.trans:
-        #print t.id, t.source, t.label, t.target, t.show_constraints()
-        #print t.is_pass(tw2)
-    print("----------------------is_accept-----------------------")
-    tw3 = Timedword("b", 3)
-    tw4 = Timedword("a", 5)
-    tw5 = Timedword("b", 7)
-    tws0 = []
-    tws1 = [tw1,tw2,tw3,tw4]
-    tws2 = [tw4]
-    tws3 = [tw4,tw3,tw5]
-    tws4 = [tw3,tw4]
-    tws5 = [tw4,tw3,tw4,tw5]
-    #print AA.is_accept(tws0)
-    #print AA.is_accept(tws1)
-    #print AA.is_accept(tws2)
-    #print AA.is_accept(tws3)
-    #print AA.is_accept(tws4)
-    #print AA.is_accept(tws5)
-    
-    print tw1 == tw4
-    print tw1 == tw3
-    tws6 = [tw4,tw3,tw5]
-    print tws_equal(tws3, tws6)
+    #print("---------------------a.json----------------")
+    #A.show()
+    #print("--------------------Assistant---------------------------")
+    #AA.show()
+    with open('lineAA.txt', 'a') as f:
+        f.write(str(len(AA.trans))+',')
+    with open('lineA.txt', 'a') as f:
+        f.write(str(len(A.trans)) + ',')
+    print len(A.trans), len(AA.trans)
 
 if __name__=='__main__':
 	main()
