@@ -1,5 +1,5 @@
 #Generate rta randomly.
-
+import sys
 import random
 import math
 import json
@@ -30,7 +30,12 @@ class RTAGenerator:
             i = i + 1
             states.append(str(i))
         init = str(1)
-        acceptsize = random.randint(10,14)
+        floor = 1
+        if int(math.floor(statesnumber / 5.0)) < 2:
+            floor = 1
+        else:
+            floor = int(math.floor(statesnumber / 5.0))
+        acceptsize = random.randint(floor,int(math.floor(statesnumber / 2.0))+1)
         accept = random.sample(states, acceptsize)
         accept.sort()
         return states, init, accept
@@ -76,7 +81,7 @@ class RTAGenerator:
 
     def random_intervals(self, partitionsize):
         intervals = []
-        intervals_num =random.randint(0, int(math.floor(partitionsize / 2.0)))
+        intervals_num =random.randint(1, int(math.floor(partitionsize / 2.0)))
         endpoint_set = set()
         endpoint_list = []
         count = intervals_num*2
@@ -156,7 +161,7 @@ def buildjson(g):
         json.dump(gdict,f)
 """
 
-def buildjson(g):
+def buildjson(g, filename):
     tran_dict = {}
     for t in g.tran:
         t_dict = t.show()
@@ -165,7 +170,7 @@ def buildjson(g):
     gdict = {"name":g.name, "s":g.s, "sigma":g.sigma, "tran":tran_dict, "init":g.init, "accept":g.accept}
     text = json.dumps(gdict)
     formattext = jsonformat(text)
-    with open('test_automata/30_2_3.json', 'w') as f:
+    with open(filename+'.json', 'w') as f:
         f.write(formattext)
 
 def jsonformat(text):
@@ -208,11 +213,15 @@ def jsonformat(text):
     return format_str
     
 def main():
-    g = RTAGenerator('30_2_3',30,2,3)
+    para = sys.argv
+    filename = str(para[1])
+    n, k, m = filename.split('_')
+    g = RTAGenerator(filename,int(n),int(k),int(m))
+    #g = RTAGenerator('30_2_3',30,2,3)
     #while validation(g) != True:
         #g = RTAGenerator('30_2_3',30,2,3)
     g.show()
-    buildjson(g)
+    buildjson(g, filename)
     return 0
 
 if __name__=='__main__':
