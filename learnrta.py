@@ -96,7 +96,7 @@ def learn(AA, AADFA, sigma, file_pre):
         print "Total time: " + str(end-start)
         print "The element number of S in the last table: " + str(len(table.S))
         print "The element number of R in the last table: " + str(len(table.R))
-        print "The element number of E in the last table: " + str(len(table.E))
+        print "The element number of E in the last table (excluding the empty-word): " + str(len(table.E))
         print "Total number of observation table: " + str(t_number)
         print "Total number of membership query: " + str((len(table.S)+len(table.R))*(len(table.E)+1))
         print "Total number of equivalence query: " + str(eq_number)
