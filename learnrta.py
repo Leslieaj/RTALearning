@@ -102,7 +102,7 @@ def learn(AA, AADFA, sigma, file_pre):
         print "Total number of equivalence query: " + str(eq_number)
         print "*******************Succeed !***********************"
         folder,fname = file_pre.split('/')
-        with open(folder+'/result/'+fname + '_result.txt', 'a') as f:
+        with open(folder+'/result/'+fname + '_result.txt', 'w') as f:
             output = " ".join([str(end-start), str(len(table.S)), str(len(table.R)), str(len(table.E)), str(t_number), str((len(table.S)+len(table.R))*(len(table.E)+1)), str(eq_number), '\n'])
             f.write(output)
     return 0
