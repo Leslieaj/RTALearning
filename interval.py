@@ -260,6 +260,22 @@ def intersect_constraint(c1, c2):
     else:
         return Constraint("(0,0)"), False
 
+def constraint_contain(c, intervals):
+    intertemp = []
+    for constraint in intervals:
+        intersect, flag = intersect_constraint(c, constraint)
+        if flag == True:
+            intertemp.append(intersect)
+    union = Constraint("(0,0)")
+    num = 1
+    for t in intertemp:
+        if num == 1 :
+            union, num = union_constraint(union, t)
+    if num==1 and union == c:
+        return True
+    else:
+        return False
+
 def union_constraint(c1, c2):
     if c1.isEmpty() == True:
         return c2, 1
@@ -280,6 +296,22 @@ def union_constraint(c1, c2):
             return Constraint(sortlist[0].min_bn.getbn()+','+sortlist[1].max_bn.getbn()), 1
     else:
         return sortlist, 2
+
+def union_constraints(cs):
+    intervals = copy.deepcopy(cs)
+    lbsort(intervals)
+    union_intervals = []
+    union = Constraint("(0,0)")
+    num = 1
+    for constraint in intervals:
+        if num == 1:
+            union, num = union_constraint(union, constraint)
+        if num == 2:
+            union_intervals.append(union[0])
+            union = union[1]
+            union, num = union_constraint(union, constraint)
+    union_intervals.append(union)
+    return union_intervals
 
 def intervals_partition(intervals):
     partitions = []

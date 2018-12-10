@@ -1,8 +1,8 @@
 #some definitions about deterministic real-time automaton
 #load rta model files (*.json)
-
+import sys
 import json
-from normalform import *
+from interval import Constraint, complement_intervals, lbsort, union_constraints
 
 class State:
     name = ""
@@ -18,14 +18,12 @@ class RTATran:
     source = ""
     target = ""
     label = ""
-    nfc = None
-    def __init__(self, id, source="", target="", label="", constraints = None, nfc=None):
+    def __init__(self, id, source="", target="", label="", constraints = None):
         self.id = id
         self.source = source
         self.target = target
         self.label = label
         self.constraints = constraints or []
-        self.nfc = nfc
     
     def is_pass(self, tw):
         """
@@ -94,10 +92,9 @@ class RTA:
         print "State (name, init, accept) :"
         for s in self.states:
             print s.name, s.init, s.accept
-        print "transitions (id, source_state, label, target_state, constraints, normalform guard): "
+        print "transitions (id, source_state, label, target_state, constraints): "
         for t in self.trans:
             print t.id, t.source, t.label, t.target, t.show_constraints()
-            t.nfc.show()
             print
         print "init state: "
         print self.initstate_name
@@ -133,8 +130,7 @@ def buildRTA(jsonfile):
             new_constraint = Constraint(constraint.strip())
             constraints_list.append(new_constraint)
         target = trans_set[tran][3].encode("utf-8")
-        nfc = union_intervals_to_nform(constraints_list)
-        rta_tran = RTATran(tran_id, source, target, label, constraints_list, nfc)
+        rta_tran = RTATran(tran_id, source, target, label, constraints_list)
         trans += [rta_tran]
     return RTA(name, sigma, S, trans, initstate, accept_list), sigma
 
@@ -165,8 +161,7 @@ def buildAssistantRTA(rta):
             else:
                 cuintervals = [Constraint("[0,+)")]
             if len(cuintervals) > 0:
-                nfc = union_intervals_to_nform(cuintervals)
-                temp_tran = RTATran(tran_number, s.name, new_state.name, key, cuintervals, nfc)
+                temp_tran = RTATran(tran_number, s.name, new_state.name, key, cuintervals)
                 tran_number = tran_number+1
                 new_trans.append(temp_tran)
     assist_name = "Assist_"+rta.name
@@ -180,11 +175,17 @@ def buildAssistantRTA(rta):
             assist_trans.append(tran)
         for label in rta.sigma:
             constraints = [Constraint("[0,+)")]
-            nfc = union_intervals_to_nform(constraints)
-            temp_tran = RTATran(tran_number, new_state.name, new_state.name, label, constraints, nfc)
+            temp_tran = RTATran(tran_number, new_state.name, new_state.name, label, constraints)
             tran_number = tran_number+1
             assist_trans.append(temp_tran)
     return RTA(assist_name, rta.sigma, assist_states, assist_trans, assist_init, assist_accepts)
+
+def refine_rta_trans(rta):
+    for tran in rta.trans:
+        c_list = [c for c in tran.constraints]
+        lbsort(c_list)
+        union_intervals = union_constraints(c_list)
+        tran.constraints = union_intervals
 
 class Timedword():
     """
@@ -218,43 +219,19 @@ def tws_equal(tws1,tws2):
         return True
 
 def main():
-    A,_ = buildRTA("a.json")
+    paras = sys.argv
+    #A,_ = buildRTA("test_automata/test.json")
+    A,_ = buildRTA(paras[1])
     AA = buildAssistantRTA(A)
-    print("---------------------a.json----------------")
-    A.show()
-    print("--------------------Assistant---------------------------")
-    AA.show()
-    print("--------------------time words------------------------")
-    tw1 = Timedword("a", 5)
-    tw2 = Timedword("b", 2.1)
-    print tw1.show()
-    print tw2.show()
-    print("-----------------------is_pass------------------------")
-    for t in AA.trans:
-        print t.id, t.source, t.label, t.target, t.show_constraints()
-        #t.nfc.show()
-        print t.is_pass(tw2)
-    print("----------------------is_accept-----------------------")
-    tw3 = Timedword("b", 3)
-    tw4 = Timedword("a", 5)
-    tw5 = Timedword("b", 7)
-    tws0 = []
-    tws1 = [tw1,tw2,tw3,tw4]
-    tws2 = [tw4]
-    tws3 = [tw4,tw3,tw5]
-    tws4 = [tw3,tw4]
-    tws5 = [tw4,tw3,tw4,tw5]
-    print AA.is_accept(tws0)
-    print AA.is_accept(tws1)
-    print AA.is_accept(tws2)
-    print AA.is_accept(tws3)
-    print AA.is_accept(tws4)
-    print AA.is_accept(tws5)
-    
-    print tw1 == tw4
-    print tw1 == tw3
-    tws6 = [tw4,tw3,tw5]
-    print tws_equal(tws3, tws6)
+    #print("---------------------a.json----------------")
+    #A.show()
+    #print("--------------------Assistant---------------------------")
+    #AA.show()
+    with open('lineAA.txt', 'a') as f:
+        f.write(str(len(AA.trans))+',')
+    with open('lineA.txt', 'a') as f:
+        f.write(str(len(A.trans)) + ',')
+    print len(A.trans), len(AA.trans)
 
 if __name__=='__main__':
 	main()

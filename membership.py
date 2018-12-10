@@ -1,6 +1,6 @@
 #define the fucntions in the membership query
 
-from rta import *
+from rta import buildRTA, buildAssistantRTA, Timedword
 
 class Element():
     def __init__(self, tws=[], value=[]):
@@ -341,7 +341,7 @@ def test_prefixes():
 #----------------------------------------------------------------------------------------#
 
 def main():
-    A,_ = buildRTA("a.json")
+    A,_ = buildRTA("test_automata/a.json")
     AA = buildAssistantRTA(A)
     sigma = ["a", "b"]
 
@@ -376,7 +376,8 @@ def main():
     E = []
     T = Table(S,R,E)
     
-    T3 = make_closed(T, sigma, AA)
+    flag_closed, new_S, new_R, move = T.is_closed()
+    T3 = make_closed(new_S, new_R, move, T, sigma, AA)
     T3.show()
     
     ctx2 = tws6
@@ -387,10 +388,12 @@ def main():
     T5 = add_ctx(T4, ctx3, AA)
     T5.show()
     print("----------------------T6--------------------------")
-    T6 = make_consistent(T5, sigma, AA)
+    flag_consistent, new_a, new_e_index = T5.is_consistent()
+    T6 = make_consistent(new_a, new_e_index, T5, sigma, AA)
     T6.show()  
     print("----------------------T7--------------------------")
-    T7 = make_closed(T6, sigma, AA)
+    flag_closed, new_S, new_R, move = T6.is_closed()
+    T7 = make_closed(new_S, new_R, move, T6, sigma, AA)
     T7.show()
     print("----------------------T8--------------------------")
     ctx4 = tws11

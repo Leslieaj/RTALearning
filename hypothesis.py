@@ -1,6 +1,7 @@
 #define Evidence Automaton and build a hypothesis RTA
 
 #import pygraphviz as pyg
+from rta import *
 from membership import *
 
 class EvidenceAutomaton():
@@ -130,14 +131,14 @@ def buildhypothesis(ea, n):
                         else:
                             temp_constraint = Constraint("("+str(int(tw.time))+"," + "+" + ")")
                         constraints.append(temp_constraint)
-                nfc = union_intervals_to_nform(constraints)
-                temp_tran = RTATran(tran.id, tran.source, tran.target, tran.label[0].action, constraints, nfc)
+                #nfc = union_intervals_to_nform(constraints)
+                temp_tran = RTATran(tran.id, tran.source, tran.target, tran.label[0].action, constraints)
                 trans.append(temp_tran)
     rta = RTA(new_name, sigma, states, trans, initstate_name, accept_names)
     return rta
 
 def main():
-    A,_ = buildRTA("a.json")
+    A,_ = buildRTA("test_automata/a.json")
     AA = buildAssistantRTA(A)
     sigma = ["a", "b"]
 
@@ -185,7 +186,8 @@ def main():
     T2 = add_ctx(T1, ctx1, AA)
     T2.show()
     print("----------------------T3--------------------------")
-    T3 = make_closed(T2, sigma, AA)
+    flag_closed, new_S, new_R, move = T2.is_closed()
+    T3 = make_closed(new_S, new_R, move, T2, sigma, AA)
     T3.show()
     print("----------------------EA2-------------------------")
     ea2 = buildEvidenceAutomaton(T3, sigma)
@@ -207,33 +209,6 @@ def main():
     ctx3 = tws8
     T5 = add_ctx(T4, ctx3, AA)
     T5.show()
-    print("----------------------T6--------------------------")
-    T6 = make_consistent(T5, sigma, AA)
-    T6.show()
-    flag_evi, new_R = T6.is_evidence_closed()
-    print flag_evi
-    for r in new_R:
-        print [tw.show() for tw in r.tws]
-    print("----------------------T7--------------------------")
-    T7 = make_closed(T6, sigma, AA)
-    #T7.show()
-    print("----------------------EA4-------------------------")
-    ea4 = buildEvidenceAutomaton(T7, sigma)
-    #ea4.show()
-    print("----------------------H4--------------------------")
-    H4 = buildhypothesis(ea4, 4)
-    #H4.show()
-    print("----------------------T8--------------------------")
-    ctx4 = tws11
-    T8 = add_ctx(T7, ctx4, AA)
-    #T8.show()
-    print("----------------------EA5--------------------------")
-    ea5 = buildEvidenceAutomaton(T8, sigma)
-    #ea5.show()
-    print("----------------------H5---------------------------")
-    H5 = buildhypothesis(ea5, 5)
-    #H5.show()
-    
     return 0
 
 if __name__=='__main__':
