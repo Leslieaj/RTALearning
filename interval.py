@@ -44,6 +44,8 @@ class BracketNum:
                 return False
             else:
                 return True
+        if bn.value == '+':
+            return False
         if int(self.value) > int(bn.value):
             return True
         elif int(self.value) < int(bn.value):
