@@ -113,6 +113,7 @@ def main():
     file_pre,_ = filename.split('.',1)
     A, sigma = buildRTA(filename)
     AA = buildAssistantRTA(A)
+    #AADFA = rta_to_fa(A, "receiving")
     AADFA = rta_to_fa(AA, "receiving")
     learn(AA, AADFA, sigma, file_pre)
     return 0
